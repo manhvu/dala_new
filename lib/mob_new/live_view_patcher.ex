@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Mob contributors <https://github.com/manhvu/mob/graphs/contributors>
+#
+# SPDX-License-Identifier: MIT
+
 defmodule MobNew.LiveViewPatcher do
   @moduledoc """
   Pure helpers for applying the Mob LiveView bridge patches to a freshly

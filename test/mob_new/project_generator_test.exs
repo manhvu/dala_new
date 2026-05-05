@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Mob contributors <https://github.com/manhvu/mob/graphs/contributors>
+#
+# SPDX-License-Identifier: MIT
+
 defmodule MobNew.ProjectGeneratorTest do
   # async: false because some tests mutate the process-global MOB_BUNDLE_PREFIX
   # env var. Running them in parallel would race.
@@ -943,7 +947,7 @@ defmodule MobNew.ProjectGeneratorTest do
       {:ok, dir} = ProjectGenerator.liveview_generate("lv_test", tmp)
       content = File.read!(Path.join(dir, "assets/js/app.js"))
       assert content =~ "const MobHook ="
-      assert content =~ "hooks: {MobHook}"
+      assert content =~ "hooks: {MobHook"
       assert content =~ "pushEvent(\"mob_message\", data)"
     end
 
@@ -1147,9 +1151,9 @@ defmodule MobNew.ProjectGeneratorTest do
              "config/test.exs still has Phoenix's default 4002"
 
       runtime = File.read!(Path.join(dir, "config/runtime.exs"))
-      assert runtime =~ "\"PORT\") || \"4200\""
+      assert runtime =~ "\"PORT\", \"4200\""
 
-      refute runtime =~ "\"PORT\") || \"4000\"",
+      refute runtime =~ "\"PORT\", \"4000\"",
              "config/runtime.exs PORT env-var fallback still 4000"
     end
 

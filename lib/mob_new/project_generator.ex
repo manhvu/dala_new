@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Mob contributors <https://github.com/manhvu/mob/graphs/contributors>
+#
+# SPDX-License-Identifier: MIT
+
 defmodule MobNew.ProjectGenerator do
   @moduledoc """
   Generates a new Mob project from EEx templates in `priv/templates/mob.new/`.
@@ -447,9 +451,9 @@ defmodule MobNew.ProjectGenerator do
   # file's port has already been bumped.
   defp patch_config_ports(project_dir) do
     [
-      {"config/dev.exs", ~r/port:\s*4000\b/, "port: 4200", "dev port 4000 → 4200"},
-      {"config/test.exs", ~r/port:\s*4002\b/, "port: 4202", "test port 4002 → 4202"},
-      {"config/runtime.exs", ~r/"PORT"\s*\)\s*\|\|\s*"4000"/, "\"PORT\") || \"4200\"",
+      {"config/dev.exs", ~r/(port:\s*)/, "port: 4200, ", "dev port → 4200"},
+      {"config/test.exs", ~r/(port:\s*)/, "port: 4202, ", "test port → 4202"},
+      {"config/runtime.exs", ~r/("PORT")\s*,\s*"4000"/, "\"PORT\", \"4200\"",
        "runtime PORT default 4000 → 4200"}
     ]
     |> Enum.each(&apply_port_patch(project_dir, &1))

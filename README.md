@@ -1,10 +1,22 @@
-# mob_new
+<!--
+SPDX-FileCopyrightText: 2024 Mob contributors <https://github.com/manhvu/mob/graphs/contributors>
 
-Project generator for the [Mob](https://hexdocs.pm/mob) mobile framework. Installs a global `mix mob.new` command.
+SPDX-License-Identifier: MIT
+-->
 
-[![Hex.pm](https://img.shields.io/hexpm/v/mob_new.svg)](https://hex.pm/packages/mob_new)
+# MobNew
 
-## Installation
+[![CI](https://github.com/manhvu/mob/actions/workflows/elixir.yml/badge.svg)](https://github.com/manhvu/mob/actions/workflows/elixir.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Hex version badge](https://img.shields.io/hexpm/v/mob_new.svg)](https://hex.pm/packages/mob_new)
+[![Hexdocs badge](https://img.shields.io/badge/docs-hexdocs-purple)](https://hexdocs.pm/mob_new)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/manhvu/mob)
+
+Project generator for the [Mob](https://hexdocs.pm/mob) mobile framework. Installs a global `mix mob.new` command to generate native SwiftUI/Compose apps or LiveView-wrapped mobile projects.
+
+## For end-users
+
+### Installation
 
 `mob_new` is a Mix archive — install it globally, not as a project dependency:
 
@@ -12,7 +24,7 @@ Project generator for the [Mob](https://hexdocs.pm/mob) mobile framework. Instal
 mix archive.install hex mob_new
 ```
 
-## Usage
+### Usage
 
 ```bash
 mix mob.new my_app
@@ -128,6 +140,36 @@ mix mob.deploy        # push + restart
 mix mob.watch         # auto-push on file save
 mix mob.connect       # open IEx connected to the running device node
 ```
+
+## For contributors and library authors
+
+### Building and installing locally
+
+```bash
+cd ~/code/mob_new
+mix archive.build                          # produces mob_new-<version>.ez
+mix archive.install mob_new-0.1.27.ez --force
+mix archive                                # verify install
+```
+
+To publish a new version: bump `version:` in `mix.exs`, then
+`mix hex.publish archive`.
+
+### Testing
+
+```bash
+mix test                        # unit tests (fast)
+mix test --include integration  # also runs `mix phx.new` subprocesses (~minute)
+```
+
+The integration tests generate real LV projects in tmp dirs to verify the
+end-to-end output. Worth running locally before publishing a new version.
+
+### Project structure
+
+Templates live at `priv/templates/mob.new/`, rendered with EEx by
+`MobNew.ProjectGenerator`. The LiveView path additionally runs `mix phx.new`
+as a subprocess and patches the result via `MobNew.LiveViewPatcher`.
 
 ## Documentation
 
