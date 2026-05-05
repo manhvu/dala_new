@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 Mob contributors <https://github.com/manhvu/mob/graphs/contributors>
+# SPDX-FileCopyrightText: 2024 Dala contributors <https://github.com/manhvu/dala/graphs/contributors>
 #
 # SPDX-License-Identifier: MIT
 

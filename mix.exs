@@ -1,21 +1,21 @@
-# SPDX-FileCopyrightText: 2024 Mob contributors <https://github.com/manhvu/mob/graphs/contributors>
+# SPDX-FileCopyrightText: 2024 Dala contributors <https://github.com/manhvu/dala/graphs/contributors>
 #
 # SPDX-License-Identifier: MIT
 
-defmodule MobNew.MixProject do
+defmodule DalaNew.MixProject do
   use Mix.Project
 
   @version "0.1.30"
 
   @description """
-  Project generator for the Mob mobile framework. Installs a global
-  `mix mob.new` command to generate native SwiftUI/Compose apps or
-  LiveView-wrapped mobile projects.
-  """
+    Project generator for the Dala mobile framework. Installs a global
+    `mix dala.new` command to generate native SwiftUI/Compose apps or
+    LiveView-wrapped mobile projects.
+    """
 
   def project do
     [
-      app: :mob_new,
+      app: :dala_new,
       version: @version,
       elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
@@ -61,7 +61,7 @@ defmodule MobNew.MixProject do
     [
       main: "readme",
       source_ref: "v#{@version}",
-      source_url: "https://github.com/manhvu/mob",
+      source_url: "https://github.com/manhvu/dala",
       logo: nil,
       extra_section: "GUIDES",
       extras: [
@@ -69,10 +69,10 @@ defmodule MobNew.MixProject do
         "CHANGELOG.md"
       ],
       groups_for_modules: [
-        "Mix Tasks": [~r"Mix\.Tasks\..*"],
-        "Project Generation": [~r"MobNew\..*"],
-        Utilities: [~r"MobNew\.Util\..*"]
-      ]
+              "Mix Tasks": [~r"Mix\.Tasks\..*"],
+              "Project Generation": [~r"DalaNew\..*"],
+              Utilities: [~r"DalaNew\.Util\..*"]
+            ]
     ]
   end
 
@@ -85,12 +85,12 @@ defmodule MobNew.MixProject do
       files: ~w(lib .formatter.exs mix.exs README* LICENSE*
       CHANGELOG* AGENTS.md priv),
       links: %{
-        "GitHub" => "https://github.com/manhvu/mob",
-        "Changelog" => "https://github.com/manhvu/mob/blob/main/mob_new/CHANGELOG.md",
-        "HexDocs" => "https://hexdocs.pm/mob",
-        "Discord" => "https://discord.gg/mob",
-        "Website" => "https://mobframework.com"
-      }
+              "GitHub" => "https://github.com/manhvu/dala",
+              "Changelog" => "https://github.com/manhvu/dala/blob/main/dala_new/CHANGELOG.md",
+              "HexDocs" => "https://hexdocs.pm/dala",
+              "Discord" => "https://discord.gg/dala",
+              "Website" => "https://dalaframework.com"
+            }
     ]
   end
 

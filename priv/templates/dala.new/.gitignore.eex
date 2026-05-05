@@ -1,0 +1,11 @@
+/_build/
+/deps/
+/doc/
+/.fetch
+*.ez
+*.beam
+dala.exs
+dala.exs
+android/local.properties
+android/.gradle/
+android/app/build/

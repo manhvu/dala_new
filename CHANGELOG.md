@@ -1,5 +1,5 @@
 <!--
-SPDX-FileCopyrightText: 2024 Mob contributors <https://github.com/manhvu/mob/graphs/contributors>
+SPDX-FileCopyrightText: 2024 Dala contributors <https://github.com/manhvu/dala/graphs/contributors>
 
 SPDX-License-Identifier: MIT
 -->
@@ -11,7 +11,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
-## [v0.1.30](https://github.com/manhvu/mob/compare/v0.1.29...v0.1.30) (2024-01-01)
+## [v0.1.30](https://github.com/manhvu/dala/compare/v0.1.29...v0.1.30) (2024-01-01)
 
 ### Improvements:
 

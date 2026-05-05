@@ -1,36 +1,36 @@
-# AGENTS.md — mob_new
+# AGENTS.md — dala_new
 
-You're in **mob_new**, the project generator. Read
-[`~/code/mob/AGENTS.md`](../mob/AGENTS.md) first for the system view, the
+You're in **dala_new**, the project generator. Read
+[`~/code/dala/AGENTS.md`](../dala/AGENTS.md) first for the system view, the
 three-repo topology, and the cross-cutting pre-empt-failure rules. The
-notes below are mob_new-specific.
+notes below are dala_new-specific.
 
 ## What this repo is
 
-A Mix archive (`mix archive.install hex mob_new`) that installs a global
-`mix mob.new` task. Generates either:
+A Mix archive (`mix archive.install hex dala_new`) that installs a global
+`mix dala.new` task. Generates either:
 
-- **Native Mob projects** — `mix mob.new my_app` — Elixir-driven SwiftUI/Compose UI.
-- **LiveView wrappers** — `mix mob.new my_app --liveview` — Phoenix LiveView running
+- **Native Dala projects** — `mix dala.new my_app` — Elixir-driven SwiftUI/Compose UI.
+- **LiveView wrappers** — `mix dala.new my_app --liveview` — Phoenix LiveView running
   on-device, served to a WKWebView/WebView.
 
-Templates live at `priv/templates/mob.new/`, rendered with EEx by
-`MobNew.ProjectGenerator`. The LiveView path additionally runs `mix phx.new`
-as a subprocess and patches the result via `MobNew.LiveViewPatcher`.
+Templates live at `priv/templates/dala.new/`, rendered with EEx by
+`DalaNew.ProjectGenerator`. The LiveView path additionally runs `mix phx.new`
+as a subprocess and patches the result via `DalaNew.LiveViewPatcher`.
 
 ## Building and installing locally
 
 ```bash
-cd ~/code/mob_new
-mix archive.build                          # produces mob_new-<version>.ez
-mix archive.install mob_new-0.1.27.ez --force
+cd ~/code/dala_new
+mix archive.build                          # produces dala_new-<version>.ez
+mix archive.install dala_new-0.1.27.ez --force
 mix archive                                # verify install
 ```
 
 To publish a new version: bump `version:` in `mix.exs`, then
 `mix hex.publish archive`.
 
-## Things that bite specifically in mob_new
+## Things that bite specifically in dala_new
 
 - **The LV path skips Phoenix-owned files.** When generating a LiveView
   project, the native template's `mix.exs`, `config/`, `lib/<app>/`, etc.
@@ -48,13 +48,13 @@ To publish a new version: bump `version:` in `mix.exs`, then
   auto-generated App ID display names that exceed ~30 chars or contain
   characters their validator dislikes (underscores have been flagged).
   Long snake_case app names (`another_political_name_app`) hit this.
-  `mob.provision` now rewrites the error to a hint, but the generator
+  `dala.provision` now rewrites the error to a hint, but the generator
   itself doesn't enforce length — that's a deliberate trade-off so users
   can still pick descriptive names; we surface the issue at provision time.
 
 - **Port 4200 is hardcoded for LiveView projects.** All LV templates set
   the Phoenix endpoint to 127.0.0.1:4200. Two installed apps collide; only
-  one runs at a time. Tracked in `mob/issues.md` #4 — fix involves
+  one runs at a time. Tracked in `dala/issues.md` #4 — fix involves
   hashing the bundle id.
 
 - **`apply_liveview_patches` is the orchestration spine.** New LV-specific

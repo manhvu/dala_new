@@ -1,35 +1,35 @@
 <!--
-SPDX-FileCopyrightText: 2024 Mob contributors <https://github.com/manhvu/mob/graphs/contributors>
+SPDX-FileCopyrightText: 2024 Dala contributors <https://github.com/manhvu/dala/graphs/contributors>
 
 SPDX-License-Identifier: MIT
 -->
 
-# MobNew
+# DalaNew
 
-[![CI](https://github.com/manhvu/mob/actions/workflows/elixir.yml/badge.svg)](https://github.com/manhvu/mob/actions/workflows/elixir.yml)
+[![CI](https://github.com/manhvu/dala/actions/workflows/elixir.yml/badge.svg)](https://github.com/manhvu/dala/actions/workflows/elixir.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Hex version badge](https://img.shields.io/hexpm/v/mob_new.svg)](https://hex.pm/packages/mob_new)
-[![Hexdocs badge](https://img.shields.io/badge/docs-hexdocs-purple)](https://hexdocs.pm/mob_new)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/manhvu/mob)
+[![Hex version badge](https://img.shields.io/hexpm/v/dala_new.svg)](https://hex.pm/packages/dala_new)
+[![Hexdocs badge](https://img.shields.io/badge/docs-hexdocs-purple)](https://hexdocs.pm/dala_new)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/manhvu/dala)
 
-Project generator for the [Mob](https://hexdocs.pm/mob) mobile framework. Installs a global `mix mob.new` command to generate native SwiftUI/Compose apps or LiveView-wrapped mobile projects.
+Project generator for the [Dala](https://hexdocs.pm/dala) mobile framework. Installs a global `mix dala.new` command to generate native SwiftUI/Compose apps or LiveView-wrapped mobile projects.
 
 ## For end-users
 
 ### Installation
 
-`mob_new` is a Mix archive — install it globally, not as a project dependency:
+`dala_new` is a Mix archive — install it globally, not as a project dependency:
 
 ```bash
-mix archive.install hex mob_new
+mix archive.install hex dala_new
 ```
 
 ### Usage
 
 ```bash
-mix mob.new my_app
+mix dala.new my_app
 cd my_app
-mix mob.install    # first-run setup: download OTP runtime, generate icons, write mob.exs
+mix dala.install    # first-run setup: download OTP runtime, generate icons, write dala.exs
 ```
 
 ### Options
@@ -38,71 +38,71 @@ mix mob.install    # first-run setup: download OTP runtime, generate icons, writ
 |--------|-------------|
 | `--ios` | Generate iOS boilerplate only (skip `android/`) |
 | `--android` | Generate Android boilerplate only (skip `ios/`) |
-| `--liveview` | Wrap a Phoenix LiveView app in a Mob WebView (combines with `--ios` / `--android`) |
+| `--liveview` | Wrap a Phoenix LiveView app in a Dala WebView (combines with `--ios` / `--android`) |
 | `--no-install` | Skip `mix deps.get` after generation |
 | `--dest DIR` | Create the project in DIR (default: current directory) |
-| `--local` | Use `path:` deps pointing to local mob/mob_dev repos — see below |
+| `--local` | Use `path:` deps pointing to local dala/dala_dev repos — see below |
 | `--no-ios` | Alias for `--android` (skip iOS boilerplate) |
 | `--no-android` | Alias for `--ios` (skip Android boilerplate) |
 
-`mix mob.install`, `mix mob.deploy`, and `mix mob.doctor` detect the project's
+`mix dala.install`, `mix dala.deploy`, and `mix dala.doctor` detect the project's
 platform set from on-disk layout, so a single-platform project skips the
 absent platform's setup automatically (no Android OTP download, no iOS
 toolchain check, etc.).
 
 ### Local development mode (`--local`)
 
-> **This flag is for Mob framework contributors and library authors testing
+> **This flag is for Dala framework contributors and library authors testing
 > unpublished changes. It is not intended for app developers — use the standard
-> `mix mob.new my_app` instead.**
+> `mix dala.new my_app` instead.**
 
-#### Installing the local mob_new archive
+#### Installing the local dala_new archive
 
-When working on mob_new itself, build and force-install the archive to pick up your changes:
+When working on dala_new itself, build and force-install the archive to pick up your changes:
 
 ```bash
-cd ~/code/mob_new && mix archive.build && mix archive.install $(ls mob_new-*.ez | tail -1) --force
+cd ~/code/dala_new && mix archive.build && mix archive.install $(ls dala_new-*.ez | tail -1) --force
 ```
 
 Verify it's active:
 
 ```bash
-mix archive        # mob_new should appear with the updated version
-mix mob.new --help
+mix archive        # dala_new should appear with the updated version
+mix dala.new --help
 ```
 
-If you are working on Mob itself and want to test your changes end-to-end
+If you are working on Dala itself and want to test your changes end-to-end
 before publishing to Hex, pass `--local` to generate a project that depends on
 your local checkouts instead of the published packages:
 
 ```bash
-mix mob.new my_app --local
+mix dala.new my_app --local
 ```
 
 This generates `mix.exs` with `path:` deps:
 
 ```elixir
-{:mob,     path: "/path/to/mob"},
-{:mob_dev, path: "/path/to/mob_dev", only: :dev, runtime: false}
+{:dala,     path: "/path/to/dala"},
+{:dala_dev, path: "/path/to/dala_dev", only: :dev, runtime: false}
 ```
 
-It also pre-fills `mob.exs` with your actual local paths so `mix mob.install`
+It also pre-fills `dala.exs` with your actual local paths so `mix dala.install`
 skips the path configuration prompts and proceeds straight to OTP download and
 icon generation.
 
 **Path resolution** (in order):
 
-1. `MOB_DIR` / `MOB_DEV_DIR` environment variables
-2. `./mob` / `./mob_dev` in the current directory (e.g. running from `~/code`)
-3. `../mob` / `../mob_dev` relative to the current directory
+1. `DALA_DIR` / `DALA_DEV_DIR` environment variables
+2. `./dala` / `./dala_dev` in the current directory (e.g. running from `~/code`)
+3. `../dala` / `../dala_dev` relative to the current directory
 
 ```bash
-# If mob and mob_dev live alongside each other in ~/code:
+# If dala and dala_dev live alongside each other in ~/code:
 cd ~/code
-mix mob.new my_app --local   # auto-detects ~/code/mob and ~/code/mob_dev
+mix dala.new my_app --local   # auto-detects ~/code/dala and ~/code/dala_dev
 
 # Or set explicitly from anywhere:
-MOB_DIR=~/code/mob MOB_DEV_DIR=~/code/mob_dev mix mob.new my_app --local
+DALA_DIR=~/code/dala DALA_DEV_DIR=~/code/dala_dev mix dala.new my_app --local
 ```
 
 ## What gets generated
@@ -112,14 +112,14 @@ my_app/
 ├── mix.exs
 ├── lib/
 │   └── my_app/
-│       ├── app.ex           # Mob.App entry point
+│       ├── app.ex           # Dala.App entry point
 │       └── home_screen.ex   # starter screen
 ├── android/
 │   ├── build.gradle
 │   └── app/
 │       └── src/main/
 │           ├── AndroidManifest.xml
-│           └── java/com/mob/my_app/MainActivity.java
+│           └── java/com/dala/my_app/MainActivity.java
 └── ios/
     ├── beam_main.m
     └── Info.plist
@@ -130,15 +130,15 @@ my_app/
 First deploy (builds the native app and installs it):
 
 ```bash
-mix mob.deploy --native
+mix dala.deploy --native
 ```
 
 Day-to-day (hot-pushes changed BEAMs, no native rebuild):
 
 ```bash
-mix mob.deploy        # push + restart
-mix mob.watch         # auto-push on file save
-mix mob.connect       # open IEx connected to the running device node
+mix dala.deploy        # push + restart
+mix dala.watch         # auto-push on file save
+mix dala.connect       # open IEx connected to the running device node
 ```
 
 ## For contributors and library authors
@@ -146,9 +146,9 @@ mix mob.connect       # open IEx connected to the running device node
 ### Building and installing locally
 
 ```bash
-cd ~/code/mob_new
-mix archive.build                          # produces mob_new-<version>.ez
-mix archive.install mob_new-0.1.27.ez --force
+cd ~/code/dala_new
+mix archive.build                          # produces dala_new-<version>.ez
+mix archive.install dala_new-0.1.27.ez --force
 mix archive                                # verify install
 ```
 
@@ -167,10 +167,10 @@ end-to-end output. Worth running locally before publishing a new version.
 
 ### Project structure
 
-Templates live at `priv/templates/mob.new/`, rendered with EEx by
-`MobNew.ProjectGenerator`. The LiveView path additionally runs `mix phx.new`
-as a subprocess and patches the result via `MobNew.LiveViewPatcher`.
+Templates live at `priv/templates/dala.new/`, rendered with EEx by
+`DalaNew.ProjectGenerator`. The LiveView path additionally runs `mix phx.new`
+as a subprocess and patches the result via `DalaNew.LiveViewPatcher`.
 
 ## Documentation
 
-Full guide at [hexdocs.pm/mob](https://hexdocs.pm/mob), including [Getting Started](https://hexdocs.pm/mob/getting_started.html), screen lifecycle, components, navigation, and live debugging.
+Full guide at [hexdocs.pm/dala](https://hexdocs.pm/dala), including [Getting Started](https://hexdocs.pm/dala/getting_started.html), screen lifecycle, components, navigation, and live debugging.

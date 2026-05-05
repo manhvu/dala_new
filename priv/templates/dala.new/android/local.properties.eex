@@ -1,0 +1,8 @@
+# local.properties — machine-specific paths, NOT committed to version control.
+# Android SDK path (set automatically by Android Studio):
+# sdk.dir=/path/to/android/sdk
+
+# Dala build paths — configured by `mix dala.install`:
+dala.otp_release=/path/to/otp
+dala.otp_release_arm32=/path/to/otp-arm32
+dala.dala_dir=/path/to/dala
