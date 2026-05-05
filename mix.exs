@@ -5,10 +5,10 @@
 defmodule DalaNew.MixProject do
   use Mix.Project
 
-  @version "0.1.30"
+  @version "0.0.1"
 
   @description """
-    Project generator for the Dala mobile framework. Installs a global
+    Fork from Mob framework, Project generator for the Dala mobile framework. Installs a global
     `mix dala.new` command to generate native SwiftUI/Compose apps or
     LiveView-wrapped mobile projects.
     """
