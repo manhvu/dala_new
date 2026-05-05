@@ -35,7 +35,7 @@ defmodule DalaNew.ProjectGenerator do
   """
 
   defp templates_root, do: :dala_new |> :code.priv_dir() |> Path.join("templates/dala.new")
-    defp static_root, do: :dala_new |> :code.priv_dir() |> Path.join("static/dala.new")
+  defp static_root, do: :dala_new |> :code.priv_dir() |> Path.join("static/dala.new")
 
   # Reverse-DNS prefix for the generated bundle id. Honors DALA_BUNDLE_PREFIX
   # (typical value: "com.acme" or "net.you"); defaults to "com.example", the
@@ -400,7 +400,12 @@ defmodule DalaNew.ProjectGenerator do
 
   defp write_dala_exs(project_dir, dala_exs_dala_dir, dala_exs_elixir_lib) do
     path = Path.join(project_dir, "dala.exs")
-    File.write!(path, DalaNew.LiveViewPatcher.dala_exs_content(dala_exs_dala_dir, dala_exs_elixir_lib))
+
+    File.write!(
+      path,
+      DalaNew.LiveViewPatcher.dala_exs_content(dala_exs_dala_dir, dala_exs_elixir_lib)
+    )
+
     Mix.shell().info([:green, "* create ", :reset, path])
   end
 
@@ -628,19 +633,6 @@ defmodule DalaNew.ProjectGenerator do
     Mix.shell().info([:green, "* create ", :reset, path, " (LiveView build.sh)"])
   end
 
-  defp extract_secret_key_base(project_dir) do
-    dev_exs = Path.join([project_dir, "config", "dev.exs"])
-
-    if File.exists?(dev_exs) do
-      content = File.read!(dev_exs)
-
-      case Regex.run(~r/secret_key_base:\s*"([^"]{40,})"/, content) do
-        [_, key] -> key
-        _ -> nil
-      end
-    end
-  end
-
   defp generate_secret_key_base do
     :crypto.strong_rand_bytes(48) |> Base.encode64(padding: false)
   end
@@ -713,8 +705,8 @@ defmodule DalaNew.ProjectGenerator do
 
       {dala_dep, dala_dev_dep, dala_exs_dala_dir, dala_exs_elixir_lib}
     else
-      dala_dep = ~s({:dala,     "~> 0.5"})
-      dala_dev_dep = ~s({:dala_dev, "~> 0.3", only: :dev, runtime: false})
+      dala_dep = ~s({:dala,     "~> 0.0.2"})
+      dala_dev_dep = ~s({:dala_dev, "~> 0.0.3", only: :dev, runtime: false})
       dala_exs_dala_dir = "Path.join(File.cwd!(), \"deps/dala\")"
 
       dala_exs_elixir_lib =

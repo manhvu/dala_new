@@ -11,6 +11,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## [v0.1.31](https://github.com/manhvu/dala/compare/v0.1.30...v0.1.31) (2024-01-02)
+
+### Features:
+
+* Update all screen templates to use new Spark DSL style from `dala` repo
+* Templates now use `screen "name" do ... end` blocks instead of separate `mount/3` and `render/1` functions
+* Update `dala` dependency version to `~> 0.0.2` and `dala_dev` to `~> 0.0.3`
+* Update Elixir version requirement to `~> 1.19` in generated projects
+
+### Improvements:
+
+* Simplify template code by leveraging Spark DSL automatic render/1 generation
+* Update AGENTS.md with documentation about Spark DSL template style
+
 ## [v0.1.30](https://github.com/manhvu/dala/compare/v0.1.29...v0.1.30) (2024-01-01)
 
 ### Improvements:

@@ -6,135 +6,83 @@ defmodule <%= module_name %>.ListScreen do
   @choices ~w(rock paper scissors)
   @emoji   %{"rock" => "🪨", "paper" => "📄", "scissors" => "✂️"}
 
-  # ── Mount ─────────────────────────────────────────────────────────────────────
+  screen "list" do
+    mount do
+      socket =
+        socket
+        |> Dala.Socket.assign(:rounds,  load_rounds())
+        |> Dala.Socket.assign(:pending, nil)
+        |> Dala.List.put_renderer(:history, &history_row/1)
+      {:ok, socket}
+    end
 
-  def mount(_params, _session, socket) do
-    socket =
-      socket
-      |> Dala.Socket.assign(:rounds,  load_rounds())
-      |> Dala.Socket.assign(:pending, nil)
-      |> Dala.List.put_renderer(:history, &history_row/1)
-    {:ok, socket}
-  end
+    column background: :background, fill_width: true, fill_height: true do
+      header()
+      score_bar(assigns)
 
-  # ── Render ────────────────────────────────────────────────────────────────────
-
-  def render(assigns) do
-    score   = tally(assigns.rounds)
-    last    = List.first(assigns.rounds)
-    pending = assigns.pending
-
-    # Left side of the arena: user's pick (or last pick, or idle)
-    user_emoji =
-      cond do
-        pending -> @emoji[pending.user]
-        last    -> @emoji[last.user_choice]
-        true    -> "🤔"
+      # ── Arena ─────────────────────────────────────────────────────
+      # Split row: user on the left, computer on the right.
+      # The computer side shows a spinner while the round is in flight.
+      row fill_width: true, background: :surface, padding: :space_lg do
+        arena_cell(user_emoji(assigns), "You", 1, false)
+        text text: "vs", text_size: :sm, text_color: :muted, padding: :space_sm
+        arena_cell(cpu_widget(assigns), "CPU", 1, true)
       end
 
-    # Right side: spinner while the computer is "thinking", emoji once revealed
-    cpu_widget =
-      cond do
-        pending -> :spinner
-        last    -> @emoji[last.computer_choice]
-        true    -> "🤔"
+      spacer size: 12
+
+      # ── Choice buttons ────────────────────────────────────────────
+      row fill_width: true, padding_left: :space_md, padding_right: :space_md, gap: 8 do
+        choice_button("🪨 Rock",     {self(), :pick_rock},     busy?(assigns))
+        choice_button("📄 Paper",    {self(), :pick_paper},    busy?(assigns))
+        choice_button("✂️  Scissors", {self(), :pick_scissors}, busy?(assigns))
       end
 
-    busy = not is_nil(pending)
+      spacer size: 12
+      divider color: :border
 
-    rock_tap     = {self(), :pick_rock}
-    paper_tap    = {self(), :pick_paper}
-    scissors_tap = {self(), :pick_scissors}
+      # ── Round history ─────────────────────────────────────────────
+      # Each row persisted to SQLite; most recent at top.
+      list id: :history, items: assigns.rounds
 
-    %{
-      type: :column,
-      props: %{background: :background, fill_width: true, fill_height: true},
-      children: [
-        header(),
-        score_bar(score),
+      back_button()
+    end
 
-        # ── Arena ─────────────────────────────────────────────────────────────
-        # Split row: user on the left, computer on the right.
-        # The computer side shows a spinner while the round is in flight.
-        %{
-          type: :row,
-          props: %{fill_width: true, background: :surface, padding: :space_lg},
-          children: [
-            arena_cell(user_emoji, "You",    1, false),
-            %{
-              type:  :text,
-              props: %{text: "vs", text_size: :sm, text_color: :muted, padding: :space_sm},
-              children: []
-            },
-            arena_cell(cpu_widget, "CPU", 1, true)
-          ]
-        },
+    handle_info({:tap, :pick_rock},     socket), do: pick(socket, "rock")
+    handle_info({:tap, :pick_paper},    socket), do: pick(socket, "paper")
+    handle_info({:tap, :pick_scissors}, socket), do: pick(socket, "scissors")
 
-        %{type: :spacer, props: %{size: 12}, children: []},
+    # Reveal fires after the 800 ms suspense delay.
+    handle_info(:reveal, %{assigns: %{pending: nil}} = socket) do
+      {:noreply, socket}
+    end
 
-        # ── Choice buttons ────────────────────────────────────────────────────
-        %{
-          type: :row,
-          props: %{fill_width: true, padding_left: :space_md, padding_right: :space_md, gap: 8},
-          children: [
-            choice_button("🪨 Rock",     rock_tap,     busy),
-            choice_button("📄 Paper",    paper_tap,    busy),
-            choice_button("✂️  Scissors", scissors_tap, busy)
-          ]
-        },
+    handle_info(:reveal, socket) do
+      %{user: user, computer: computer} = socket.assigns.pending
+      result = outcome(user, computer)
 
-        %{type: :spacer, props: %{size: 12}, children: []},
-        %{type: :divider, props: %{color: :border}, children: []},
+      <%= module_name %>.Repo.insert!(%<%= module_name %>.Round{
+        user_choice:     user,
+        computer_choice: computer,
+        result:          result
+      })
 
-        # ── Round history ─────────────────────────────────────────────────────
-        # Each row persisted to SQLite; most recent at top.
-        %{
-          type:  :list,
-          props: %{id: :history, items: assigns.rounds},
-          children: []
-        },
+      socket =
+        socket
+        |> Dala.Socket.assign(:rounds,  load_rounds())
+        |> Dala.Socket.assign(:pending, nil)
 
-        back_button()
-      ]
-    }
-  end
+      {:noreply, socket}
+    end
 
-  # ── Events ────────────────────────────────────────────────────────────────────
-
-  def handle_info({:tap, :pick_rock},     socket), do: pick(socket, "rock")
-  def handle_info({:tap, :pick_paper},    socket), do: pick(socket, "paper")
-  def handle_info({:tap, :pick_scissors}, socket), do: pick(socket, "scissors")
-
-  # Reveal fires after the 800 ms suspense delay.
-  def handle_info(:reveal, %{assigns: %{pending: nil}} = socket) do
-    {:noreply, socket}
-  end
-
-  def handle_info(:reveal, socket) do
-    %{user: user, computer: computer} = socket.assigns.pending
-    result = outcome(user, computer)
-
-    <%= module_name %>.Repo.insert!(%<%= module_name %>.Round{
-      user_choice:     user,
-      computer_choice: computer,
-      result:          result
-    })
-
-    socket =
-      socket
-      |> Dala.Socket.assign(:rounds,  load_rounds())
-      |> Dala.Socket.assign(:pending, nil)
-
-    {:noreply, socket}
-  end
-
-  def handle_info({:tap, :back}, socket) do
-    {:noreply, Dala.Socket.pop_screen(socket)}
+    handle_info({:tap, :back}, socket) do
+      {:noreply, Dala.Socket.pop_screen(socket)}
+    end
   end
 
   def handle_info(_message, socket), do: {:noreply, socket}
 
-  # ── Private: game logic ───────────────────────────────────────────────────────
+  # ── Private: game logic ───────────────────────────────────────────────
 
   defp pick(%{assigns: %{pending: p}} = socket, _) when not is_nil(p), do: {:noreply, socket}
   defp pick(socket, user) do
@@ -162,79 +110,69 @@ defmodule <%= module_name %>.ListScreen do
     )
   end
 
-  # ── Private: components ───────────────────────────────────────────────────────
-
-  defp header do
-    %{type: :text, props: %{
-      text: "🪨📄✂️  Rock Paper Scissors",
-      text_size: :xl, text_color: :on_primary,
-      background: :primary, padding: :space_md, fill_width: true
-    }, children: []}
-  end
-
-  defp score_bar(%{win: w, loss: l, draw: d}) do
-    %{
-      type: :row,
-      props: %{fill_width: true, background: :surface_raised, padding: :space_sm},
-      children: [
-        score_cell("#{w}", "You",  :green_400),
-        score_cell("#{d}", "Draw", :muted),
-        score_cell("#{l}", "CPU",  :red_400)
-      ]
-    }
+  defp score_bar(assigns) do
+    score = tally(assigns.rounds)
+    row fill_width: true, background: :surface_raised, padding: :space_sm do
+      score_cell("#{score.win}", "You",  :green_400)
+      score_cell("#{score.draw}", "Draw", :muted)
+      score_cell("#{score.loss}", "CPU",  :red_400)
+    end
   end
 
   defp score_cell(value, label, color) do
-    %{
-      type: :column,
-      props: %{weight: 1, align: :center, padding: :space_xs},
-      children: [
-        %{type: :text, props: %{text: value, text_size: :"2xl", text_color: color,
-            text_align: "center", font_weight: "bold"}, children: []},
-        %{type: :text, props: %{text: label, text_size: :xs,
-            text_color: :muted, text_align: "center"}, children: []}
-      ]
-    }
+    column weight: 1, align: :center, padding: :space_xs do
+      text text: value, text_size: :"2xl", text_color: color, text_align: "center", font_weight: "bold"
+      text text: label, text_size: :xs, text_color: :muted, text_align: "center"
+    end
   end
 
+  defp user_emoji(assigns) do
+    pending = assigns.pending
+    last = List.first(assigns.rounds)
+    cond do
+      pending -> @emoji[pending.user]
+      last    -> @emoji[last.user_choice]
+      true    -> "🤔"
+    end
+  end
+
+  defp cpu_widget(assigns) do
+    pending = assigns.pending
+    last = List.first(assigns.rounds)
+    cond do
+      pending -> :spinner
+      last    -> @emoji[last.computer_choice]
+      true    -> "🤔"
+    end
+  end
+
+  defp busy?(assigns), do: not is_nil(assigns.pending)
+
   defp arena_cell(:spinner, label, weight, _right) do
-    %{
-      type: :column,
-      props: %{weight: weight, align: :center, padding: :space_sm},
-      children: [
-        %{type: :progress, props: %{color: :primary}, children: []},
-        %{type: :spacer,   props: %{size: 6},          children: []},
-        %{type: :text, props: %{text: label, text_size: :sm, text_color: :muted,
-            text_align: "center"}, children: []}
-      ]
-    }
+    column weight: weight, align: :center, padding: :space_sm do
+      progress color: :primary
+      spacer size: 6
+      text text: label, text_size: :sm, text_color: :muted, text_align: "center"
+    end
   end
 
   defp arena_cell(emoji, label, weight, _right) do
-    %{
-      type: :column,
-      props: %{weight: weight, align: :center, padding: :space_sm},
-      children: [
-        %{type: :text, props: %{text: emoji, text_size: :"4xl",
-            text_align: "center"}, children: []},
-        %{type: :spacer, props: %{size: 6},  children: []},
-        %{type: :text, props: %{text: label, text_size: :sm, text_color: :muted,
-            text_align: "center"}, children: []}
-      ]
-    }
+    column weight: weight, align: :center, padding: :space_sm do
+      text text: emoji, text_size: :"4xl", text_align: "center"
+      spacer size: 6
+      text text: label, text_size: :sm, text_color: :muted, text_align: "center"
+    end
   end
 
   defp choice_button(label, tap, disabled) do
-    %{type: :button, props: %{
-      text:       label,
-      weight:     1,
-      background: if(disabled, do: :surface, else: :primary),
-      text_color: if(disabled, do: :muted,   else: :on_primary),
-      text_size:  :base,
-      padding:    :space_md,
-      disabled:   disabled,
-      on_tap:     tap
-    }, children: []}
+    button text: label,
+           weight: 1,
+           background: if(disabled, do: :surface, else: :primary),
+           text_color: if(disabled, do: :muted, else: :on_primary),
+           text_size: :base,
+           padding: :space_md,
+           disabled: disabled,
+           on_tap: tap
   end
 
   # ── Private: history row renderer ────────────────────────────────────────────
@@ -247,47 +185,23 @@ defmodule <%= module_name %>.ListScreen do
         _      -> {"D", :muted}
       end
 
-    %{
-      type: :row,
-      props: %{fill_width: true, background: :surface,
-               padding_top: 12, padding_bottom: 12,
-               padding_left: :space_md, padding_right: :space_md},
-      children: [
-        # User side
-        %{
-          type: :column,
-          props: %{weight: 1, align: :center},
-          children: [
-            %{type: :text, props: %{text: @emoji[round.user_choice],
-                text_size: :"2xl", text_align: "center"}, children: []},
-            %{type: :text, props: %{text: "You", text_size: :xs,
-                text_color: :muted, text_align: "center"}, children: []}
-          ]
-        },
-        # Result badge
-        %{
-          type: :column,
-          props: %{align: :center, padding: :space_sm},
-          children: [
-            %{type: :text, props: %{text: badge, text_size: :lg,
-                text_color: color, font_weight: "bold", text_align: "center"}, children: []},
-            %{type: :text, props: %{text: format_time(round.inserted_at),
-                text_size: :xs, text_color: :muted, text_align: "center"}, children: []}
-          ]
-        },
-        # CPU side
-        %{
-          type: :column,
-          props: %{weight: 1, align: :center},
-          children: [
-            %{type: :text, props: %{text: @emoji[round.computer_choice],
-                text_size: :"2xl", text_align: "center"}, children: []},
-            %{type: :text, props: %{text: "CPU", text_size: :xs,
-                text_color: :muted, text_align: "center"}, children: []}
-          ]
-        }
-      ]
-    }
+    row fill_width: true, background: :surface, padding_top: 12, padding_bottom: 12, padding_left: :space_md, padding_right: :space_md do
+      # User side
+      column weight: 1, align: :center do
+        text text: @emoji[round.user_choice], text_size: :"2xl", text_align: "center"
+        text text: "You", text_size: :xs, text_color: :muted, text_align: "center"
+      end
+      # Result badge
+      column align: :center, padding: :space_sm do
+        text text: badge, text_size: :lg, text_color: color, font_weight: "bold", text_align: "center"
+        text text: format_time(round.inserted_at), text_size: :xs, text_color: :muted, text_align: "center"
+      end
+      # CPU side
+      column weight: 1, align: :center do
+        text text: @emoji[round.computer_choice], text_size: :"2xl", text_align: "center"
+        text text: "CPU", text_size: :xs, text_color: :muted, text_align: "center"
+      end
+    end
   end
 
   defp format_time(%NaiveDateTime{} = dt) do
@@ -300,12 +214,16 @@ defmodule <%= module_name %>.ListScreen do
     end
   end
 
+  defp header do
+    text text: "🪨📄✂️  Rock Paper Scissors",
+         text_size: :xl, text_color: :on_primary,
+         background: :primary, padding: :space_md, fill_width: true
+  end
+
   defp back_button do
-    %{type: :button, props: %{
-      text: "← Back", fill_width: true,
-      background: :surface_raised, text_color: :on_surface,
-      text_size: :lg, padding: :space_sm,
-      on_tap: {self(), :back}
-    }, children: []}
+    button text: "← Back", fill_width: true,
+           background: :surface_raised, text_color: :on_surface,
+           text_size: :lg, padding: :space_sm,
+           on_tap: {self(), :back}
   end
 end

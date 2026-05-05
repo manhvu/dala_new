@@ -5,13 +5,13 @@
 defmodule DalaNew.MixProject do
   use Mix.Project
 
-  @version "0.0.1"
+  @version "0.0.2"
 
   @description """
-    Fork from Mob framework, Project generator for the Dala mobile framework. Installs a global
-    `mix dala.new` command to generate native SwiftUI/Compose apps or
-    LiveView-wrapped mobile projects.
-    """
+  Fork from Mob framework, Project generator for the Dala mobile framework. Installs a global
+  `mix dala.new` command to generate native SwiftUI/Compose apps or
+  LiveView-wrapped mobile projects.
+  """
 
   def project do
     [
@@ -69,10 +69,10 @@ defmodule DalaNew.MixProject do
         "CHANGELOG.md"
       ],
       groups_for_modules: [
-              "Mix Tasks": [~r"Mix\.Tasks\..*"],
-              "Project Generation": [~r"DalaNew\..*"],
-              Utilities: [~r"DalaNew\.Util\..*"]
-            ]
+        "Mix Tasks": [~r"Mix\.Tasks\..*"],
+        "Project Generation": [~r"DalaNew\..*"],
+        Utilities: [~r"DalaNew\.Util\..*"]
+      ]
     ]
   end
 
@@ -85,10 +85,10 @@ defmodule DalaNew.MixProject do
       files: ~w(lib .formatter.exs mix.exs README* LICENSE*
       CHANGELOG* AGENTS.md priv),
       links: %{
-              "GitHub" => "https://github.com/manhvu/dala",
-              "Changelog" => "https://github.com/manhvu/dala/blob/main/dala_new/CHANGELOG.md",
-              "HexDocs" => "https://hexdocs.pm/dala",
-            }
+        "GitHub" => "https://github.com/manhvu/dala",
+        "Changelog" => "https://github.com/manhvu/dala/blob/main/dala_new/CHANGELOG.md",
+        "HexDocs" => "https://hexdocs.pm/dala"
+      }
     ]
   end
 
