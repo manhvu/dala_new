@@ -397,7 +397,7 @@ defmodule DalaNew.LiveViewPatcherTest do
       assert content =~ ~s(cp "$lib_dir"/* "$BEAMS_DIR/")
       assert content =~ ~s($BEAMS_DIR/dala_logo_dark.png)
       assert content =~ ~s($BEAMS_DIR/dala_logo_light.png)
-      assert content =~ ~s($BEAMS_DIR/my_app/priv/)
+      assert content =~ ~s($BEAMS_DIR/priv/)
     end
   end
 

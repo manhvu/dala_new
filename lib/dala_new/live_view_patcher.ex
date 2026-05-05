@@ -949,8 +949,8 @@ defmodule DalaNew.LiveViewPatcher do
     chmod -R u+w "$RUNTIME_DIR" 2>/dev/null || true
 
     echo "=== Copying Dala logos ==="
-    cp "$DALA_DIR/assets/logo/logo_dark.png"  "$RUNTIME_DIR/dala_logo_dark.png"
-    cp "$DALA_DIR/assets/logo/logo_light.png" "$RUNTIME_DIR/dala_logo_light.png"
+    cp "$DALA_DIR/assets/logo/logo_dark.png"  "$BEAMS_DIR/dala_logo_dark.png"
+    cp "$DALA_DIR/assets/logo/logo_light.png" "$BEAMS_DIR/dala_logo_light.png"
 
     echo "=== Building and copying Phoenix static assets ==="
     # Build JS/CSS with esbuild + tailwind, then place them under

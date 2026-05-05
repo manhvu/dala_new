@@ -1,0 +1,8 @@
+import Config
+
+config :dala_dev,
+  # Path to the dala library repo (native source files for iOS/Android builds).
+  dala_dir: <%= dala_exs_dala_dir %>,
+
+  # Path to your Elixir lib dir (e.g. ~/.local/share/mise/installs/elixir/1.18.4-otp-28/lib).
+  elixir_lib: <%= dala_exs_elixir_lib %>

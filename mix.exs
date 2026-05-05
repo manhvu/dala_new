@@ -50,7 +50,7 @@ defmodule DalaNew.MixProject do
     [
       {:jason, "~> 1.4"},
       # Dev/Test dependencies
-      {:ex_doc, "~> 0.32", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.40", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, ">= 0.0.0", only: [:dev, :test], runtime: false},
       {:mimic, "~> 2.0", only: [:test]}
@@ -88,8 +88,6 @@ defmodule DalaNew.MixProject do
               "GitHub" => "https://github.com/manhvu/dala",
               "Changelog" => "https://github.com/manhvu/dala/blob/main/dala_new/CHANGELOG.md",
               "HexDocs" => "https://hexdocs.pm/dala",
-              "Discord" => "https://discord.gg/dala",
-              "Website" => "https://dalaframework.com"
             }
     ]
   end

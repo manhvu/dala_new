@@ -14,6 +14,8 @@ SPDX-License-Identifier: MIT
 
 Project generator for the [Dala](https://hexdocs.pm/dala) mobile framework. Installs a global `mix dala.new` command to generate native SwiftUI/Compose apps or LiveView-wrapped mobile projects.
 
+Original repo [mob_new](https://github.com/GenericJam/mob_new)
+
 ## For end-users
 
 ### Installation

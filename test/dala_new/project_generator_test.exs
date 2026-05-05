@@ -974,7 +974,7 @@ defmodule DalaNew.ProjectGeneratorTest do
       content = File.read!(Path.join(dir, "lib/lv_test/dala_app.ex"))
       assert content =~ "defmodule LvTest.DalaApp"
       assert content =~ "ensure_all_started(:lv_test)"
-      assert content =~ "Dala.Screen.start_root(LvTest.MobScreen)"
+      assert content =~ "Dala.Screen.start_root(LvTest.DalaScreen)"
     end
 
     @tag :integration
@@ -1161,7 +1161,7 @@ defmodule DalaNew.ProjectGeneratorTest do
       content = File.read!(Path.join(dir, "lib/lv_test/dala_app.ex"))
       assert content =~ "ensure_all_started(:ecto_sqlite3)"
       assert content =~ "Ecto.Migrator"
-      assert content =~ "MOB_BEAMS_DIR"
+      assert content =~ "DALA_BEAMS_DIR"
     end
   end
 
