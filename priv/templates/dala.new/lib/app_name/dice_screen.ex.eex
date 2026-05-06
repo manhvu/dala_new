@@ -1,76 +1,77 @@
 defmodule <%= module_name %>.DiceScreen do
   @moduledoc "Dice roller — tap to roll, tracks history and running average."
   use Dala.Screen
+  import Dala.Sigil
 
   @faces %{1 => "⚀", 2 => "⚁", 3 => "⚂", 4 => "⚃", 5 => "⚄", 6 => "⚅"}
   @history_max 10
 
-  screen "dice" do
-    mount do
-      socket =
-        socket
-        |> Dala.Socket.assign(:face, nil)
-        |> Dala.Socket.assign(:value, nil)
-        |> Dala.Socket.assign(:history, [])
-        |> Dala.Socket.assign(:total_rolls, 0)
-        |> Dala.Socket.assign(:total_pips, 0)
-      {:ok, socket}
-    end
+  def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> Dala.Socket.assign(:face, nil)
+      |> Dala.Socket.assign(:value, nil)
+      |> Dala.Socket.assign(:history, [])
+      |> Dala.Socket.assign(:total_rolls, 0)
+      |> Dala.Socket.assign(:total_pips, 0)
+    {:ok, socket}
+  end
 
-    scroll background: :background do
-      column background: :background, padding: :space_md do
-        header("🎲  Dice Roller")
-        spacer size: 32
+  def render(assigns) do
+    face_bg = if assigns.face, do: :primary, else: :surface_raised
+    face_fg = if assigns.face, do: :on_primary, else: :muted
+    face_text = assigns.face || "？"
+    roll_label = if assigns.total_rolls == 0, do: "Roll!", else: "Roll again"
+    avg = avg_text(assigns)
+
+    Dala.UI.scroll([background: :background], [
+      Dala.UI.column([background: :background, padding: :space_md], [
+        header("🎲  Dice Roller"),
+        Dala.UI.spacer(size: 32),
 
         # ── Big die face ─────────────────────────────────────────────
-        box background: if(assigns.face, do: :primary, else: :surface_raised), padding: :space_lg do
-          text text: assigns.face || "？", text_size: 96.0, text_color: if(assigns.face, do: :on_primary, else: :muted), padding: 0
-        end
+        Dala.UI.box([background: face_bg, padding: :space_lg], [
+          Dala.UI.text(text: face_text, text_size: 96.0, text_color: face_fg, padding: 0)
+        ]),
 
-        spacer size: 24
+        Dala.UI.spacer(size: 24),
 
         # ── Roll button ───────────────────────────────────────────────
-        button text: if(assigns.total_rolls == 0, do: "Roll!", else: "Roll again"),
-                background: :primary,
-                text_color: :on_primary,
-                text_size: :xl,
-                padding: :space_md,
-                on_tap: {self(), :roll}
+        Dala.UI.button(text: roll_label, background: :primary, text_color: :on_primary, text_size: :xl, padding: :space_md, on_tap: {self(), :roll}),
 
-        spacer size: 32
-        divider color: :border
-        spacer size: 16
+        Dala.UI.spacer(size: 32),
+        Dala.UI.divider(color: :border),
+        Dala.UI.spacer(size: 16),
 
         # ── Stats ─────────────────────────────────────────────────────
-        row padding: 0 do
-          stat("Rolls", "@total_rolls")
-          spacer size: 16
-          stat("Average", avg_text(assigns))
-        end
-
-        history_section(assigns)
-        spacer size: 32
+        Dala.UI.row([padding: 0], [
+          stat("Rolls", "#{assigns.total_rolls}"),
+          Dala.UI.spacer(size: 16),
+          stat("Average", avg)
+        ])
+      ] ++ history_section(assigns) ++ [
+        Dala.UI.spacer(size: 32),
         back_button()
-      end
-    end
+      ])
+    ])
+  end
 
-    handle_info({:tap, :roll}, socket) do
-      value   = :rand.uniform(6)
-      face    = Map.fetch!(@faces, value)
-      history = [value | socket.assigns.history] |> Enum.take(@history_max)
-      socket =
-        socket
-        |> Dala.Socket.assign(:value, value)
-        |> Dala.Socket.assign(:face, face)
-        |> Dala.Socket.assign(:history, history)
-        |> Dala.Socket.assign(:total_rolls, socket.assigns.total_rolls + 1)
-        |> Dala.Socket.assign(:total_pips, socket.assigns.total_pips + value)
-      {:noreply, socket}
-    end
+  def handle_info({:tap, :roll}, socket) do
+    value   = :rand.uniform(6)
+    face    = Map.fetch!(@faces, value)
+    history = [value | socket.assigns.history] |> Enum.take(@history_max)
+    socket =
+      socket
+      |> Dala.Socket.assign(:value, value)
+      |> Dala.Socket.assign(:face, face)
+      |> Dala.Socket.assign(:history, history)
+      |> Dala.Socket.assign(:total_rolls, socket.assigns.total_rolls + 1)
+      |> Dala.Socket.assign(:total_pips, socket.assigns.total_pips + value)
+    {:noreply, socket}
+  end
 
-    handle_info({:tap, :back}, socket) do
-      {:noreply, Dala.Socket.pop_screen(socket)}
-    end
+  def handle_info({:tap, :back}, socket) do
+    {:noreply, Dala.Socket.pop_screen(socket)}
   end
 
   def handle_info(_message, socket), do: {:noreply, socket}
@@ -86,33 +87,35 @@ defmodule <%= module_name %>.DiceScreen do
     end
   end
 
-  defp history_section(%{history: []}), do: nil
+  defp history_section(%{history: []}), do: []
   defp history_section(%{history: history}) do
     history_text =
       history
       |> Enum.map(&Map.fetch!(@faces, &1))
       |> Enum.join("  ")
 
-    column padding: 0 do
-      text text: "Last #{length(history)} rolls", text_size: :sm, text_color: :muted, padding: :space_sm
-      box background: :surface_raised, padding: :space_md do
-        text text: history_text, text_size: 28.0, text_color: :on_surface, padding: 0
-      end
-    end
+    [
+      Dala.UI.column([padding: 0], [
+        Dala.UI.text(text: "Last #{length(history)} rolls", text_size: :sm, text_color: :muted, padding: :space_sm),
+        Dala.UI.box([background: :surface_raised, padding: :space_md], [
+          Dala.UI.text(text: history_text, text_size: 28.0, text_color: :on_surface, padding: 0)
+        ])
+      ])
+    ]
   end
 
   defp stat(label, value) do
-    column background: :surface_raised, padding: :space_md do
-      text text: value, text_size: :xl, text_color: :primary, padding: 0
-      text text: label, text_size: :sm, text_color: :muted, padding: 0
-    end
+    Dala.UI.column([background: :surface_raised, padding: :space_md], [
+      Dala.UI.text(text: value, text_size: :xl, text_color: :primary, padding: 0),
+      Dala.UI.text(text: label, text_size: :sm, text_color: :muted, padding: 0)
+    ])
   end
 
   defp header(title) do
-    text text: title, text_size: :xl, text_color: :on_primary, background: :primary, padding: :space_md
+    ~dala(<Text text={title} text_size={:xl} text_color={:on_primary} background={:primary} padding={:space_md} />)
   end
 
   defp back_button do
-    button text: "← Back", background: :surface_raised, text_color: :on_surface, text_size: :lg, padding: :space_sm, on_tap: {self(), :back}
+    ~dala(<Button text="← Back" background={:surface_raised} text_color={:on_surface} text_size={:lg} padding={:space_sm} on_tap={{self(), :back}} />)
   end
 end

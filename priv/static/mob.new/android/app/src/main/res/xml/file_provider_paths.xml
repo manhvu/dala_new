@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<paths>
-    <!-- Camera capture temp files (dala_cam_*.jpg / dala_cam_*.mp4) -->
-    <cache-path name="dala_camera" path="." />
-    <!-- Audio recording temp files -->
-    <cache-path name="dala_audio" path="." />
-</paths>

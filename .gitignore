@@ -22,3 +22,4 @@ plan.md
 .dexter.db*
 .expert
 .elixir_ls
+.DS_Store

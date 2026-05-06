@@ -11,6 +11,32 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## [v0.0.3](https://github.com/manhvu/dala/compare/v0.0.2...v0.0.3) (2025-05-06)
+
+### Features:
+
+* Update dala dependency version to `~> 0.0.3`
+* Update Elixir version to `1.19.5-otp-28` in `.tool-versions.eex`
+
+### Bug Fixes:
+
+* Fix screen templates to use correct Spark DSL syntax (`screen do name :atom ... end`)
+* Fix screen templates to use `render/1` with `Dala.UI.*` functions for complex screens
+  (Spark DSL `screen` block only accepts registered entities, not arbitrary function calls)
+* Fix `~MOB` sigil → `~dala` sigil in home_screen template
+* Fix `Dala.UI.*` prop name mismatches: `keyboard` → `keyboard_type`, `min`/`max` → `min_value`/`max_value`,
+  `content_mode` → `resize_mode`, `weight` → `fill_width` (weight not in UI API)
+* Fix `MOB_SIM_RUNTIME_DIR` → `DALA_SIM_RUNTIME_DIR` in iOS build.sh comment
+* Remove invalid `align` prop from `Dala.UI.column` calls (silently dropped by Map.take)
+* Remove invalid `weight` prop from `Dala.UI.button` and `Dala.UI.camera_preview` calls
+
+### Cleanup:
+
+* Delete leftover `mob.exs.eex` template (renamed to `dala.exs.eex`)
+* Delete leftover `priv/static/mob.new/` directory (renamed to `priv/static/dala.new/`)
+* Delete leftover `MobBridge.kt.eex`, `MobNode.kt.eex`, `MobScannerActivity.kt.eex` templates
+* Update AGENTS.md with current template approach and prop name gotchas
+
 ## [v0.1.31](https://github.com/manhvu/dala/compare/v0.1.30...v0.1.31) (2024-01-02)
 
 ### Features:

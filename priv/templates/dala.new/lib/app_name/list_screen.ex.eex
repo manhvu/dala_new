@@ -2,82 +2,84 @@ defmodule <%= module_name %>.ListScreen do
   @moduledoc "Rock Paper Scissors — each round is persisted with Ecto + SQLite."
   use Dala.Screen
   import Ecto.Query
+  import Dala.Sigil
 
   @choices ~w(rock paper scissors)
   @emoji   %{"rock" => "🪨", "paper" => "📄", "scissors" => "✂️"}
 
-  screen "list" do
-    mount do
-      socket =
-        socket
-        |> Dala.Socket.assign(:rounds,  load_rounds())
-        |> Dala.Socket.assign(:pending, nil)
-        |> Dala.List.put_renderer(:history, &history_row/1)
-      {:ok, socket}
-    end
+  def mount(_params, _session, socket) do
+    socket =
+      socket
+      |> Dala.Socket.assign(:rounds,  load_rounds())
+      |> Dala.Socket.assign(:pending, nil)
+      |> Dala.List.put_renderer(:history, &history_row/1)
+    {:ok, socket}
+  end
 
-    column background: :background, fill_width: true, fill_height: true do
-      header()
-      score_bar(assigns)
+  def render(assigns) do
+    Dala.UI.column([background: :background, fill_width: true, fill_height: true], [
+      header(),
+
+      score_bar(assigns),
 
       # ── Arena ─────────────────────────────────────────────────────
       # Split row: user on the left, computer on the right.
       # The computer side shows a spinner while the round is in flight.
-      row fill_width: true, background: :surface, padding: :space_lg do
-        arena_cell(user_emoji(assigns), "You", 1, false)
-        text text: "vs", text_size: :sm, text_color: :muted, padding: :space_sm
+      Dala.UI.row([fill_width: true, background: :surface, padding: :space_lg], [
+        arena_cell(user_emoji(assigns), "You", 1, false),
+        Dala.UI.text(text: "vs", text_size: :sm, text_color: :muted, padding: :space_sm),
         arena_cell(cpu_widget(assigns), "CPU", 1, true)
-      end
+      ]),
 
-      spacer size: 12
+      Dala.UI.spacer(size: 12),
 
       # ── Choice buttons ────────────────────────────────────────────
-      row fill_width: true, padding_left: :space_md, padding_right: :space_md, gap: 8 do
-        choice_button("🪨 Rock",     {self(), :pick_rock},     busy?(assigns))
-        choice_button("📄 Paper",    {self(), :pick_paper},    busy?(assigns))
+      Dala.UI.row([fill_width: true, padding_left: :space_md, padding_right: :space_md, gap: 8], [
+        choice_button("🪨 Rock",     {self(), :pick_rock},     busy?(assigns)),
+        choice_button("📄 Paper",    {self(), :pick_paper},    busy?(assigns)),
         choice_button("✂️  Scissors", {self(), :pick_scissors}, busy?(assigns))
-      end
+      ]),
 
-      spacer size: 12
-      divider color: :border
+      Dala.UI.spacer(size: 12),
+      Dala.UI.divider(color: :border),
 
       # ── Round history ─────────────────────────────────────────────
       # Each row persisted to SQLite; most recent at top.
-      list id: :history, items: assigns.rounds
+      Dala.UI.list(id: :history, items: assigns.rounds),
 
       back_button()
-    end
+    ])
+  end
 
-    handle_info({:tap, :pick_rock},     socket), do: pick(socket, "rock")
-    handle_info({:tap, :pick_paper},    socket), do: pick(socket, "paper")
-    handle_info({:tap, :pick_scissors}, socket), do: pick(socket, "scissors")
+  def handle_info({:tap, :pick_rock},     socket), do: pick(socket, "rock")
+  def handle_info({:tap, :pick_paper},    socket), do: pick(socket, "paper")
+  def handle_info({:tap, :pick_scissors}, socket), do: pick(socket, "scissors")
 
-    # Reveal fires after the 800 ms suspense delay.
-    handle_info(:reveal, %{assigns: %{pending: nil}} = socket) do
-      {:noreply, socket}
-    end
+  # Reveal fires after the 800 ms suspense delay.
+  def handle_info(:reveal, %{assigns: %{pending: nil}} = socket) do
+    {:noreply, socket}
+  end
 
-    handle_info(:reveal, socket) do
-      %{user: user, computer: computer} = socket.assigns.pending
-      result = outcome(user, computer)
+  def handle_info(:reveal, socket) do
+    %{user: user, computer: computer} = socket.assigns.pending
+    result = outcome(user, computer)
 
-      <%= module_name %>.Repo.insert!(%<%= module_name %>.Round{
-        user_choice:     user,
-        computer_choice: computer,
-        result:          result
-      })
+    <%= module_name %>.Repo.insert!(%<%= module_name %>.Round{
+      user_choice:     user,
+      computer_choice: computer,
+      result:          result
+    })
 
-      socket =
-        socket
-        |> Dala.Socket.assign(:rounds,  load_rounds())
-        |> Dala.Socket.assign(:pending, nil)
+    socket =
+      socket
+      |> Dala.Socket.assign(:rounds,  load_rounds())
+      |> Dala.Socket.assign(:pending, nil)
 
-      {:noreply, socket}
-    end
+    {:noreply, socket}
+  end
 
-    handle_info({:tap, :back}, socket) do
-      {:noreply, Dala.Socket.pop_screen(socket)}
-    end
+  def handle_info({:tap, :back}, socket) do
+    {:noreply, Dala.Socket.pop_screen(socket)}
   end
 
   def handle_info(_message, socket), do: {:noreply, socket}
@@ -112,18 +114,18 @@ defmodule <%= module_name %>.ListScreen do
 
   defp score_bar(assigns) do
     score = tally(assigns.rounds)
-    row fill_width: true, background: :surface_raised, padding: :space_sm do
-      score_cell("#{score.win}", "You",  :green_400)
-      score_cell("#{score.draw}", "Draw", :muted)
+    Dala.UI.row([fill_width: true, background: :surface_raised, padding: :space_sm], [
+      score_cell("#{score.win}", "You",  :green_400),
+      score_cell("#{score.draw}", "Draw", :muted),
       score_cell("#{score.loss}", "CPU",  :red_400)
-    end
+    ])
   end
 
   defp score_cell(value, label, color) do
-    column weight: 1, align: :center, padding: :space_xs do
-      text text: value, text_size: :"2xl", text_color: color, text_align: "center", font_weight: "bold"
-      text text: label, text_size: :xs, text_color: :muted, text_align: "center"
-    end
+    Dala.UI.column([fill_width: true, padding: :space_xs], [
+      Dala.UI.text(text: value, text_size: :"2xl", text_color: color, text_align: "center", font_weight: "bold"),
+      Dala.UI.text(text: label, text_size: :xs, text_color: :muted, text_align: "center")
+    ])
   end
 
   defp user_emoji(assigns) do
@@ -148,31 +150,26 @@ defmodule <%= module_name %>.ListScreen do
 
   defp busy?(assigns), do: not is_nil(assigns.pending)
 
-  defp arena_cell(:spinner, label, weight, _right) do
-    column weight: weight, align: :center, padding: :space_sm do
-      progress color: :primary
-      spacer size: 6
-      text text: label, text_size: :sm, text_color: :muted, text_align: "center"
-    end
+  defp arena_cell(:spinner, label, _weight, _right) do
+    Dala.UI.column([fill_width: true, padding: :space_sm], [
+      Dala.UI.progress_bar(color: :primary),
+      Dala.UI.spacer(size: 6),
+      Dala.UI.text(text: label, text_size: :sm, text_color: :muted, text_align: "center")
+    ])
   end
 
-  defp arena_cell(emoji, label, weight, _right) do
-    column weight: weight, align: :center, padding: :space_sm do
-      text text: emoji, text_size: :"4xl", text_align: "center"
-      spacer size: 6
-      text text: label, text_size: :sm, text_color: :muted, text_align: "center"
-    end
+  defp arena_cell(emoji, label, _weight, _right) do
+    Dala.UI.column([fill_width: true, padding: :space_sm], [
+      Dala.UI.text(text: emoji, text_size: :"4xl", text_align: "center"),
+      Dala.UI.spacer(size: 6),
+      Dala.UI.text(text: label, text_size: :sm, text_color: :muted, text_align: "center")
+    ])
   end
 
   defp choice_button(label, tap, disabled) do
-    button text: label,
-           weight: 1,
-           background: if(disabled, do: :surface, else: :primary),
-           text_color: if(disabled, do: :muted, else: :on_primary),
-           text_size: :base,
-           padding: :space_md,
-           disabled: disabled,
-           on_tap: tap
+    bg = if(disabled, do: :surface, else: :primary)
+    fg = if(disabled, do: :muted, else: :on_primary)
+    ~dala(<Button text={label} fill_width={true} background={bg} text_color={fg} text_size={:base} padding={:space_md} disabled={disabled} on_tap={tap} />)
   end
 
   # ── Private: history row renderer ────────────────────────────────────────────
@@ -185,23 +182,23 @@ defmodule <%= module_name %>.ListScreen do
         _      -> {"D", :muted}
       end
 
-    row fill_width: true, background: :surface, padding_top: 12, padding_bottom: 12, padding_left: :space_md, padding_right: :space_md do
+    Dala.UI.row([fill_width: true, background: :surface, padding_top: 12, padding_bottom: 12, padding_left: :space_md, padding_right: :space_md], [
       # User side
-      column weight: 1, align: :center do
-        text text: @emoji[round.user_choice], text_size: :"2xl", text_align: "center"
-        text text: "You", text_size: :xs, text_color: :muted, text_align: "center"
-      end
+      Dala.UI.column([fill_width: true], [
+        Dala.UI.text(text: @emoji[round.user_choice], text_size: :"2xl", text_align: "center"),
+        Dala.UI.text(text: "You", text_size: :xs, text_color: :muted, text_align: "center")
+      ]),
       # Result badge
-      column align: :center, padding: :space_sm do
-        text text: badge, text_size: :lg, text_color: color, font_weight: "bold", text_align: "center"
-        text text: format_time(round.inserted_at), text_size: :xs, text_color: :muted, text_align: "center"
-      end
+      Dala.UI.column([padding: :space_sm], [
+        Dala.UI.text(text: badge, text_size: :lg, text_color: color, font_weight: "bold", text_align: "center"),
+        Dala.UI.text(text: format_time(round.inserted_at), text_size: :xs, text_color: :muted, text_align: "center")
+      ]),
       # CPU side
-      column weight: 1, align: :center do
-        text text: @emoji[round.computer_choice], text_size: :"2xl", text_align: "center"
-        text text: "CPU", text_size: :xs, text_color: :muted, text_align: "center"
-      end
-    end
+      Dala.UI.column([fill_width: true], [
+        Dala.UI.text(text: @emoji[round.computer_choice], text_size: :"2xl", text_align: "center"),
+        Dala.UI.text(text: "CPU", text_size: :xs, text_color: :muted, text_align: "center")
+      ])
+    ])
   end
 
   defp format_time(%NaiveDateTime{} = dt) do
@@ -215,15 +212,10 @@ defmodule <%= module_name %>.ListScreen do
   end
 
   defp header do
-    text text: "🪨📄✂️  Rock Paper Scissors",
-         text_size: :xl, text_color: :on_primary,
-         background: :primary, padding: :space_md, fill_width: true
+    ~dala(<Text text="🪨📄✂️  Rock Paper Scissors" text_size={:xl} text_color={:on_primary} background={:primary} padding={:space_md} fill_width={true} />)
   end
 
   defp back_button do
-    button text: "← Back", fill_width: true,
-           background: :surface_raised, text_color: :on_surface,
-           text_size: :lg, padding: :space_sm,
-           on_tap: {self(), :back}
+    ~dala(<Button text="← Back" fill_width={true} background={:surface_raised} text_color={:on_surface} text_size={:lg} padding={:space_sm} on_tap={{self(), :back}} />)
   end
 end

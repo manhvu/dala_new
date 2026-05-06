@@ -30,7 +30,9 @@ defmodule DalaNew.LiveViewPatcherTest do
       result = LiveViewPatcher.inject_dala_hook(@sample_app_js)
       assert result =~ "const DalaHook ="
       # DalaHook should appear after the import block
-      assert String.split(result, "const DalaHook") |> List.last() |> String.contains?("import topbar") == false
+      assert String.split(result, "const DalaHook")
+             |> List.last()
+             |> String.contains?("import topbar") == false
     end
 
     test "registers DalaHook in LiveSocket hooks option" do
@@ -102,7 +104,10 @@ defmodule DalaNew.LiveViewPatcherTest do
 
     test "bridge element appears before inner_content" do
       result = LiveViewPatcher.inject_dala_bridge_element(@sample_root_html)
-      assert String.split(result, "dala-bridge") |> List.first() |> String.contains?("inner_content") == false
+
+      assert String.split(result, "dala-bridge")
+             |> List.first()
+             |> String.contains?("inner_content") == false
     end
 
     test "is idempotent — does not double-inject" do
@@ -111,7 +116,8 @@ defmodule DalaNew.LiveViewPatcherTest do
       assert once == twice
       # Only one dala-bridge element
       count = String.split(twice, "dala-bridge") |> length()
-      assert count == 2  # original + one bridge element
+      # original + one bridge element
+      assert count == 2
     end
 
     test "preserves body tag attributes" do

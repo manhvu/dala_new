@@ -1,48 +1,47 @@
 defmodule <%= module_name %>.HomeScreen do
   @moduledoc "Landing screen for <%= display_name %>."
   use Dala.Screen
+  import Dala.Sigil
 
-  screen "home" do
-    mount do
-      theme = Dala.State.get(:theme, :obsidian)
-      Dala.Theme.set(theme_to_module(theme))
-      {:ok, Dala.Socket.assign(socket, :theme, theme)}
-    end
+  def mount(_params, _session, socket) do
+    theme = Dala.State.get(:theme, :obsidian)
+    Dala.Theme.set(theme_to_module(theme))
+    {:ok, Dala.Socket.assign(socket, :theme, theme)}
+  end
 
-    scroll background: :background do
-      column background: :background, padding: :space_lg do
-        image src: {rootdir(), logo_src(assigns.theme)}, width: 120, height: 120, content_mode: "fit"
-        spacer size: 16
-        text text: "<%= display_name %>", text_size: :xl, text_color: :on_surface, padding: :space_sm
-        text text: "BEAM running on device", text_size: :sm, text_color: :primary, padding: 4
-        spacer size: 40
-
-        nav_button("Text Input", :open_text)
-        spacer size: 12
-        nav_button("Rock Paper Scissors", :open_list)
-        spacer size: 12
-        nav_button("Roll Dice", :open_dice)
-        spacer size: 12
-        nav_button("WebView", :open_webview)
-        spacer size: 12
-        nav_button("Audio", :open_audio)
-        spacer size: 12
-        nav_button("Camera", :open_camera)
-        spacer size: 12
-        nav_button("Storage", :open_storage)
-        spacer size: 32
-
-        text text: "Theme", text_size: :sm, text_color: :muted, padding: 4
-        spacer size: 8
-        row fill_width: true do
-          theme_tab("Obsidian", :obsidian, assigns.theme)
-          spacer size: 8
-          theme_tab("Citrus", :citrus, assigns.theme)
-          spacer size: 8
+  def render(assigns) do
+    Dala.UI.scroll([background: :background], [
+      Dala.UI.column([background: :background, padding: :space_lg], [
+        Dala.UI.image(src: rootdir() <> "/" <> logo_src(assigns.theme), width: 120, height: 120, resize_mode: :fit)
+        Dala.UI.spacer(size: 16),
+        Dala.UI.text(text: "<%= display_name %>", text_size: :xl, text_color: :on_surface, padding: :space_sm),
+        Dala.UI.text(text: "BEAM running on device", text_size: :sm, text_color: :primary, padding: 4),
+        Dala.UI.spacer(size: 40),
+        nav_button("Text Input", :open_text),
+        Dala.UI.spacer(size: 12),
+        nav_button("Rock Paper Scissors", :open_list),
+        Dala.UI.spacer(size: 12),
+        nav_button("Roll Dice", :open_dice),
+        Dala.UI.spacer(size: 12),
+        nav_button("WebView", :open_webview),
+        Dala.UI.spacer(size: 12),
+        nav_button("Audio", :open_audio),
+        Dala.UI.spacer(size: 12),
+        nav_button("Camera", :open_camera),
+        Dala.UI.spacer(size: 12),
+        nav_button("Storage", :open_storage),
+        Dala.UI.spacer(size: 32),
+        Dala.UI.text(text: "Theme", text_size: :sm, text_color: :muted, padding: 4),
+        Dala.UI.spacer(size: 8),
+        Dala.UI.row([fill_width: true], [
+          theme_tab("Obsidian", :obsidian, assigns.theme),
+          Dala.UI.spacer(size: 8),
+          theme_tab("Citrus", :citrus, assigns.theme),
+          Dala.UI.spacer(size: 8),
           theme_tab("Birch", :birch, assigns.theme)
-        end
-      end
-    end
+        ])
+      ])
+    ])
   end
 
   def handle_info({:tap, :open_text}, socket) do
@@ -95,13 +94,13 @@ defmodule <%= module_name %>.HomeScreen do
 
   defp nav_button(label, tag) do
     tap = {self(), tag}
-    ~MOB(<Button text={label} background={:primary} text_color={:on_primary} text_size={:lg} padding={:space_md} fill_width={true} on_tap={tap} />)
+    ~dala(<Button text={label} background={:primary} text_color={:on_primary} text_size={:lg} padding={:space_md} fill_width={true} on_tap={tap} />)
   end
 
   defp theme_tab(label, key, active) do
     {bg, fg} = if key == active, do: {:primary, :on_primary}, else: {:surface, :on_surface}
     tap = {self(), :"theme_#{key}"}
-    ~MOB(<Button text={label} background={bg} text_color={fg} text_size={:sm} padding={:space_sm} weight={1} on_tap={tap} />)
+    ~dala(<Button text={label} background={bg} text_color={fg} text_size={:sm} padding={:space_sm} weight={1} on_tap={tap} />)
   end
 
   defp theme_to_module(:citrus), do: Dala.Theme.Citrus

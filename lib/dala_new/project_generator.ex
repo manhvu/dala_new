@@ -705,7 +705,7 @@ defmodule DalaNew.ProjectGenerator do
 
       {dala_dep, dala_dev_dep, dala_exs_dala_dir, dala_exs_elixir_lib}
     else
-      dala_dep = ~s({:dala,     "~> 0.0.2"})
+      dala_dep = ~s({:dala,     "~> 0.0.3"})
       dala_dev_dep = ~s({:dala_dev, "~> 0.0.3", only: :dev, runtime: false})
       dala_exs_dala_dir = "Path.join(File.cwd!(), \"deps/dala\")"
 

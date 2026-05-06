@@ -3,47 +3,50 @@ defmodule <%= module_name %>.AudioScreen do
 
   @test_audio "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
 
-  screen "audio" do
-    mount do
-      {:ok, Dala.Socket.assign(socket, status: "idle", volume: 1.0)}
-    end
+  def mount(_params, _session, socket) do
+    {:ok, Dala.Socket.assign(socket, status: "idle", volume: 1.0)}
+  end
 
-    scroll background: :background do
-      column background: :background, padding: :space_lg do
-        text text: "Audio Playback", text_size: :lg, text_color: :on_surface, padding: :space_sm
-        text text: "Status: @status", text_size: :sm, text_color: :primary, padding: 4
-        spacer size: 20
-        button text: "Play", background: :primary, text_color: :on_primary, padding: :space_md, fill_width: true, on_tap: {self(), :play}
-        spacer size: 12
-        button text: "Stop", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: {self(), :stop}
-        spacer size: 20
-        text text: "App Volume: #{round(assigns.volume * 100)}%", text_size: :sm, text_color: :on_surface, padding: 4
-        slider min: 0.0, max: 1.0, value: assigns.volume, on_change: {self(), :volume}
-      end
-    end
+  def render(assigns) do
+    status_text = "Status: #{assigns.status}"
+    volume_label = "App Volume: #{round(assigns.volume * 100)}%"
 
-    handle_info({:tap, :play}, socket) do
-      socket = Dala.Audio.play(socket, @test_audio, volume: socket.assigns.volume)
-      {:noreply, Dala.Socket.assign(socket, status: "playing")}
-    end
+    Dala.UI.scroll([background: :background], [
+      Dala.UI.column([background: :background, padding: :space_lg], [
+        Dala.UI.text(text: "Audio Playback", text_size: :lg, text_color: :on_surface, padding: :space_sm),
+        Dala.UI.text(text: status_text, text_size: :sm, text_color: :primary, padding: 4),
+        Dala.UI.spacer(size: 20),
+        Dala.UI.button(text: "Play", background: :primary, text_color: :on_primary, padding: :space_md, fill_width: true, on_tap: {self(), :play}),
+        Dala.UI.spacer(size: 12),
+        Dala.UI.button(text: "Stop", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: {self(), :stop}),
+        Dala.UI.spacer(size: 20),
+        Dala.UI.text(text: volume_label, text_size: :sm, text_color: :on_surface, padding: 4),
+        Dala.UI.slider(min_value: 0.0, max_value: 1.0, value: assigns.volume, on_change: {self(), :volume})
+      ])
+    ])
+  end
 
-    handle_info({:tap, :stop}, socket) do
-      socket = Dala.Audio.stop_playback(socket)
-      {:noreply, Dala.Socket.assign(socket, status: "stopped")}
-    end
+  def handle_info({:tap, :play}, socket) do
+    socket = Dala.Audio.play(socket, @test_audio, volume: socket.assigns.volume)
+    {:noreply, Dala.Socket.assign(socket, status: "playing")}
+  end
 
-    handle_info({:change, :volume, volume}, socket) do
-      socket = Dala.Audio.set_volume(socket, volume)
-      {:noreply, Dala.Socket.assign(socket, volume: volume)}
-    end
+  def handle_info({:tap, :stop}, socket) do
+    socket = Dala.Audio.stop_playback(socket)
+    {:noreply, Dala.Socket.assign(socket, status: "stopped")}
+  end
 
-    handle_info({:audio, :playback_finished, _}, socket) do
-      {:noreply, Dala.Socket.assign(socket, status: "finished")}
-    end
+  def handle_info({:change, :volume, volume}, socket) do
+    socket = Dala.Audio.set_volume(socket, volume)
+    {:noreply, Dala.Socket.assign(socket, volume: volume)}
+  end
 
-    handle_info({:audio, :playback_error, %{reason: reason}}, socket) do
-      {:noreply, Dala.Socket.assign(socket, status: "error: #{reason}")}
-    end
+  def handle_info({:audio, :playback_finished, _}, socket) do
+    {:noreply, Dala.Socket.assign(socket, status: "finished")}
+  end
+
+  def handle_info({:audio, :playback_error, %{reason: reason}}, socket) do
+    {:noreply, Dala.Socket.assign(socket, status: "error: #{reason}")}
   end
 
   def handle_info(_msg, socket), do: {:noreply, socket}

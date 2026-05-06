@@ -164,7 +164,7 @@ cp -f "$ELIXIR_LIB/eex/ebin/"*.beam  "$BEAMS_DIR/"
 cp -f "$ELIXIR_LIB/eex/ebin/eex.app" "$BEAMS_DIR/"
 
 # ── Sync OTP runtime to the simulator's runtime dir ──────────────────────────
-# dala_beam.m reads MOB_SIM_RUNTIME_DIR (passed by `mix dala.deploy` via
+# dala_beam.m reads DALA_SIM_RUNTIME_DIR (passed by `mix dala.deploy` via
 # simctl's SIMCTL_CHILD_* mechanism) to find the OTP runtime at startup.
 # Default lives under ~/.dala/runtime/ios-sim so `mix dala.cache` can list and
 # clean it. Override with DALA_SIM_RUNTIME_DIR in the calling environment.

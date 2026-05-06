@@ -622,9 +622,9 @@ defmodule DalaNew.ProjectGeneratorTest do
 
       refute content =~ ~s|System.get_env("ROOTDIR", Path.expand|,
              "home_screen.ex eagerly evaluates Path.expand as the default arg " <>
-             "to System.get_env — this raises on Android where HOME is unset " <>
-             "and crashes the screen's init. Use a `case` or `||` helper so " <>
-             "the fallback only fires when ROOTDIR is missing."
+               "to System.get_env — this raises on Android where HOME is unset " <>
+               "and crashes the screen's init. Use a `case` or `||` helper so " <>
+               "the fallback only fires when ROOTDIR is missing."
     end
 
     # ── Ecto SQLite layer ─────────────────────────────────────────────────────

@@ -5,19 +5,17 @@
 defmodule DalaNew.MixProject do
   use Mix.Project
 
-  @version "0.0.2"
+  @version "0.0.3"
 
   @description """
-  Fork from Mob framework, Project generator for the Dala mobile framework. Installs a global
-  `mix dala.new` command to generate native SwiftUI/Compose apps or
-  LiveView-wrapped mobile projects.
+  Project generator for the Dala mobile framework.
   """
 
   def project do
     [
       app: :dala_new,
       version: @version,
-      elixir: "~> 1.19",
+      elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       description: @description,
