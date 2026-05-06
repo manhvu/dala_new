@@ -59,7 +59,7 @@ defmodule DalaNew.MixProject do
     [
       main: "readme",
       source_ref: "v#{@version}",
-      source_url: "https://github.com/manhvu/dala",
+      source_url: "https://github.com/manhvu/dala_new",
       logo: nil,
       extra_section: "GUIDES",
       extras: [
@@ -83,9 +83,9 @@ defmodule DalaNew.MixProject do
       files: ~w(lib .formatter.exs mix.exs README* LICENSE*
       CHANGELOG* AGENTS.md priv),
       links: %{
-        "GitHub" => "https://github.com/manhvu/dala",
+        "GitHub" => "https://github.com/manhvu/dala_new",
         "Changelog" => "https://github.com/manhvu/dala/blob/main/dala_new/CHANGELOG.md",
-        "HexDocs" => "https://hexdocs.pm/dala"
+        "HexDocs" => "https://hexdocs.pm/dala_new"
       }
     ]
   end
