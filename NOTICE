@@ -1,0 +1,20 @@
+Dala New - Project generator for the Dala mobile framework
+
+This project contains code originally from Mob New (https://github.com/GenericJam/mob_new),
+licensed under the MIT License.
+
+Modifications and additional code are licensed under the Apache License 2.0.
+
+Original Mob New project:
+  Copyright (c) GenericJam
+  Licensed under MIT License - see LICENSE file
+
+Dala New modifications and new contributions:
+  Copyright (c) 2026 Dala contributors
+  Licensed under Apache License 2.0 - see LICENSE-APACHE file
+
+---
+
+Dual licensed under:
+- MIT (for upstream/original portions)
+- Apache-2.0 (for new contributions)

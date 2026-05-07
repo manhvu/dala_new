@@ -1,13 +1,14 @@
 <!--
 SPDX-FileCopyrightText: 2024 Dala contributors <https://github.com/manhvu/dala/graphs/contributors>
 
-SPDX-License-Identifier: MIT
+SPDX-License-Identifier: MIT OR Apache-2.0
 -->
 
 # DalaNew
 
 [![CI](https://github.com/manhvu/dala/actions/workflows/elixir.yml/badge.svg)](https://github.com/manhvu/dala/actions/workflows/elixir.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Hex version badge](https://img.shields.io/hexpm/v/dala_new.svg)](https://hex.pm/packages/dala_new)
 [![Hexdocs badge](https://img.shields.io/badge/docs-hexdocs-purple)](https://hexdocs.pm/dala_new)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/manhvu/dala)
@@ -15,6 +16,13 @@ SPDX-License-Identifier: MIT
 Project generator for the [Dala](https://hexdocs.pm/dala) mobile framework. Installs a global `mix dala.new` command to generate native SwiftUI/Compose apps or LiveView-wrapped mobile projects.
 
 Original repo [mob_new](https://github.com/GenericJam/mob_new)
+
+**Dual licensed under:**
+- **MIT License** (for original Mob New project portions) - see [LICENSE](LICENSE)
+- **Apache License 2.0** (for new contributions) - see [LICENSE-APACHE](LICENSE-APACHE)
+
+See [NOTICE](NOTICE) for attribution details.
+
 
 ## For end-users
 

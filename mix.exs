@@ -5,7 +5,7 @@
 defmodule DalaNew.MixProject do
   use Mix.Project
 
-  @version "0.0.3"
+  @version "0.0.4"
 
   @description """
   Project generator for the Dala mobile framework.
@@ -79,7 +79,7 @@ defmodule DalaNew.MixProject do
       maintainers: [
         "Manh Vu <manhvu@users.noreply.github.com>"
       ],
-      licenses: ["MIT"],
+      licenses: ["MIT", "Apache-2.0"],
       files: ~w(lib .formatter.exs mix.exs README* LICENSE*
       CHANGELOG* AGENTS.md priv),
       links: %{
