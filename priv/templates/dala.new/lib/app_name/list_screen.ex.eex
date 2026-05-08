@@ -2,7 +2,6 @@ defmodule <%= module_name %>.ListScreen do
   @moduledoc "Rock Paper Scissors — each round is persisted with Ecto + SQLite."
   use Dala.Screen
   import Ecto.Query
-  import Dala.Sigil
 
   @choices ~w(rock paper scissors)
   @emoji   %{"rock" => "🪨", "paper" => "📄", "scissors" => "✂️"}
@@ -169,7 +168,7 @@ defmodule <%= module_name %>.ListScreen do
   defp choice_button(label, tap, disabled) do
     bg = if(disabled, do: :surface, else: :primary)
     fg = if(disabled, do: :muted, else: :on_primary)
-    ~dala(<Button text={label} fill_width={true} background={bg} text_color={fg} text_size={:base} padding={:space_md} disabled={disabled} on_tap={tap} />)
+    Dala.UI.button(text: label, fill_width: true, background: bg, text_color: fg, text_size: :base, padding: :space_md, disabled: disabled, on_tap: tap)
   end
 
   # ── Private: history row renderer ────────────────────────────────────────────
@@ -212,10 +211,10 @@ defmodule <%= module_name %>.ListScreen do
   end
 
   defp header do
-    ~dala(<Text text="🪨📄✂️  Rock Paper Scissors" text_size={:xl} text_color={:on_primary} background={:primary} padding={:space_md} fill_width={true} />)
+    Dala.UI.text(text: "🪨📄✂️  Rock Paper Scissors", text_size: :xl, text_color: :on_primary, background: :primary, padding: :space_md, fill_width: true)
   end
 
   defp back_button do
-    ~dala(<Button text="← Back" fill_width={true} background={:surface_raised} text_color={:on_surface} text_size={:lg} padding={:space_sm} on_tap={{self(), :back}} />)
+    Dala.UI.button(text: "← Back", fill_width: true, background: :surface_raised, text_color: :on_surface, text_size: :lg, padding: :space_sm, on_tap: {self(), :back})
   end
 end

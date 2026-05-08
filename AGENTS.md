@@ -73,10 +73,9 @@ To publish a new version: bump `version:` in `mix.exs`, then
 - **Screen templates use `render/1` with `Dala.UI.*` functions.** Complex
   screens with helper functions can't use the Spark DSL's `screen do...end`
   block (which only accepts registered UI entities). Instead, they define
-  `mount/3` and `render/1` explicitly using `Dala.UI.*` functions and the
-  `~dala` sigil for helper functions. Simple screens (like WebViewScreen)
-  can use the Spark DSL with `screen do name :atom ... end`. The `~MOB`
-  sigil has been renamed to `~dala` — always use `~dala` in new code.
+  `mount/3` and `render/1` explicitly using `Dala.UI.*` functions.
+  Simple screens (like WebViewScreen) can use the Spark DSL with
+  `screen do name :atom ... end`.
   See examples in `priv/templates/dala.new/lib/app_name/*_screen.ex.eex`.
 
 ## Tests

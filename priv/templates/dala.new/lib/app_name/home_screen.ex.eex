@@ -1,7 +1,6 @@
 defmodule <%= module_name %>.HomeScreen do
   @moduledoc "Landing screen for <%= display_name %>."
   use Dala.Screen
-  import Dala.Sigil
 
   def mount(_params, _session, socket) do
     theme = Dala.State.get(:theme, :obsidian)
@@ -94,13 +93,13 @@ defmodule <%= module_name %>.HomeScreen do
 
   defp nav_button(label, tag) do
     tap = {self(), tag}
-    ~dala(<Button text={label} background={:primary} text_color={:on_primary} text_size={:lg} padding={:space_md} fill_width={true} on_tap={tap} />)
+    Dala.UI.button(text: label, background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: tap)
   end
 
   defp theme_tab(label, key, active) do
     {bg, fg} = if key == active, do: {:primary, :on_primary}, else: {:surface, :on_surface}
     tap = {self(), :"theme_#{key}"}
-    ~dala(<Button text={label} background={bg} text_color={fg} text_size={:sm} padding={:space_sm} weight={1} on_tap={tap} />)
+    Dala.UI.button(text: label, background: bg, text_color: fg, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: tap)
   end
 
   defp theme_to_module(:citrus), do: Dala.Theme.Citrus

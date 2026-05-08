@@ -1,7 +1,6 @@
 defmodule <%= module_name %>.DiceScreen do
   @moduledoc "Dice roller — tap to roll, tracks history and running average."
   use Dala.Screen
-  import Dala.Sigil
 
   @faces %{1 => "⚀", 2 => "⚁", 3 => "⚂", 4 => "⚃", 5 => "⚄", 6 => "⚅"}
   @history_max 10
@@ -112,10 +111,10 @@ defmodule <%= module_name %>.DiceScreen do
   end
 
   defp header(title) do
-    ~dala(<Text text={title} text_size={:xl} text_color={:on_primary} background={:primary} padding={:space_md} />)
+    Dala.UI.text(text: title, text_size: :xl, text_color: :on_primary, background: :primary, padding: :space_md)
   end
 
   defp back_button do
-    ~dala(<Button text="← Back" background={:surface_raised} text_color={:on_surface} text_size={:lg} padding={:space_sm} on_tap={{self(), :back}} />)
+    Dala.UI.button(text: "← Back", background: :surface_raised, text_color: :on_surface, text_size: :lg, padding: :space_sm, on_tap: {self(), :back})
   end
 end

@@ -1,7 +1,6 @@
 defmodule <%= module_name %>.TextScreen do
   @moduledoc "Text input demo screen."
   use Dala.Screen
-  import Dala.Sigil
 
   def mount(_params, _session, socket) do
     text = Dala.State.get(:draft_text, "")
@@ -69,10 +68,10 @@ defmodule <%= module_name %>.TextScreen do
   def handle_info(_message, socket), do: {:noreply, socket}
 
   defp header(title) do
-    ~dala(<Text text={title} text_size={:xl} text_color={:on_primary} background={:primary} padding={:space_md} />)
+    Dala.UI.text(text: title, text_size: :xl, text_color: :on_primary, background: :primary, padding: :space_md)
   end
 
   defp back_button do
-    ~dala(<Button text="← Back" background={:surface_raised} text_color={:on_surface} text_size={:lg} padding={:space_sm} on_tap={{self(), :back}} />)
+    Dala.UI.button(text: "← Back", background: :surface_raised, text_color: :on_surface, text_size: :lg, padding: :space_sm, on_tap: {self(), :back})
   end
 end

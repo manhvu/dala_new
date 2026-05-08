@@ -11,6 +11,12 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## [Unreleased]
+
+### Breaking Changes:
+
+* Remove `Dala.Sigil` and `~dala` sigil from all screen templates — helpers now use `Dala.UI.*` function calls directly
+
 ## [v0.0.3](https://github.com/manhvu/dala/compare/v0.0.2...v0.0.3) (2025-05-06)
 
 ### Features:
