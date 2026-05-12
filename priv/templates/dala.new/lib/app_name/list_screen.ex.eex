@@ -9,9 +9,9 @@ defmodule <%= module_name %>.ListScreen do
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> Dala.Socket.assign(:rounds,  load_rounds())
-      |> Dala.Socket.assign(:pending, nil)
-      |> Dala.List.put_renderer(:history, &history_row/1)
+      |> Dala.Ui.Socket.assign(:rounds,  load_rounds())
+      |> Dala.Ui.Socket.assign(:pending, nil)
+      |> Dala.Ui.List.put_renderer(:history, &history_row/1)
     {:ok, socket}
   end
 
@@ -34,9 +34,9 @@ defmodule <%= module_name %>.ListScreen do
 
       # ── Choice buttons ────────────────────────────────────────────
       Dala.UI.row([fill_width: true, padding_left: :space_md, padding_right: :space_md, gap: 8], [
-        choice_button("🪨 Rock",     {self(), :pick_rock},     busy?(assigns)),
-        choice_button("📄 Paper",    {self(), :pick_paper},    busy?(assigns)),
-        choice_button("✂️  Scissors", {self(), :pick_scissors}, busy?(assigns))
+        choice_button("🪨 Rock",     :pick_rock,     busy?(assigns)),
+        choice_button("📄 Paper",    :pick_paper,    busy?(assigns)),
+        choice_button("✂️  Scissors", :pick_scissors, busy?(assigns))
       ]),
 
       Dala.UI.spacer(size: 12),
@@ -50,9 +50,9 @@ defmodule <%= module_name %>.ListScreen do
     ])
   end
 
-  def handle_info({:tap, :pick_rock},     socket), do: pick(socket, "rock")
-  def handle_info({:tap, :pick_paper},    socket), do: pick(socket, "paper")
-  def handle_info({:tap, :pick_scissors}, socket), do: pick(socket, "scissors")
+  def handle_event(:pick_rock,     _params, socket), do: pick(socket, "rock")
+  def handle_event(:pick_paper,    _params, socket), do: pick(socket, "paper")
+  def handle_event(:pick_scissors, _params, socket), do: pick(socket, "scissors")
 
   # Reveal fires after the 800 ms suspense delay.
   def handle_info(:reveal, %{assigns: %{pending: nil}} = socket) do
@@ -71,14 +71,14 @@ defmodule <%= module_name %>.ListScreen do
 
     socket =
       socket
-      |> Dala.Socket.assign(:rounds,  load_rounds())
-      |> Dala.Socket.assign(:pending, nil)
+      |> Dala.Ui.Socket.assign(:rounds,  load_rounds())
+      |> Dala.Ui.Socket.assign(:pending, nil)
 
     {:noreply, socket}
   end
 
-  def handle_info({:tap, :back}, socket) do
-    {:noreply, Dala.Socket.pop_screen(socket)}
+  def handle_event(:back, _params, socket) do
+    {:noreply, Dala.Ui.Socket.pop_screen(socket)}
   end
 
   def handle_info(_message, socket), do: {:noreply, socket}
@@ -89,7 +89,7 @@ defmodule <%= module_name %>.ListScreen do
   defp pick(socket, user) do
     computer = Enum.random(@choices)
     Process.send_after(self(), :reveal, 800)
-    {:noreply, Dala.Socket.assign(socket, :pending, %{user: user, computer: computer})}
+    {:noreply, Dala.Ui.Socket.assign(socket, :pending, %{user: user, computer: computer})}
   end
 
   defp outcome("rock",     "scissors"), do: "win"
@@ -165,10 +165,10 @@ defmodule <%= module_name %>.ListScreen do
     ])
   end
 
-  defp choice_button(label, tap, disabled) do
+  defp choice_button(label, event, disabled) do
     bg = if(disabled, do: :surface, else: :primary)
     fg = if(disabled, do: :muted, else: :on_primary)
-    Dala.UI.button(text: label, fill_width: true, background: bg, text_color: fg, text_size: :base, padding: :space_md, disabled: disabled, on_tap: tap)
+    Dala.UI.button(text: label, fill_width: true, background: bg, text_color: fg, text_size: :base, padding: :space_md, disabled: disabled, on_tap: event)
   end
 
   # ── Private: history row renderer ────────────────────────────────────────────
@@ -215,6 +215,6 @@ defmodule <%= module_name %>.ListScreen do
   end
 
   defp back_button do
-    Dala.UI.button(text: "← Back", fill_width: true, background: :surface_raised, text_color: :on_surface, text_size: :lg, padding: :space_sm, on_tap: {self(), :back})
+    Dala.UI.button(text: "← Back", fill_width: true, background: :surface_raised, text_color: :on_surface, text_size: :lg, padding: :space_sm, on_tap: :back)
   end
 end

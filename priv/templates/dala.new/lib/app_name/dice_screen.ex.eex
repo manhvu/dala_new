@@ -1,120 +1,105 @@
 defmodule <%= module_name %>.DiceScreen do
   @moduledoc "Dice roller — tap to roll, tracks history and running average."
-  use Dala.Screen
+  use Dala.Spark.Dsl
 
   @faces %{1 => "⚀", 2 => "⚁", 3 => "⚂", 4 => "⚃", 5 => "⚄", 6 => "⚅"}
   @history_max 10
 
-  def mount(_params, _session, socket) do
-    socket =
-      socket
-      |> Dala.Socket.assign(:face, nil)
-      |> Dala.Socket.assign(:value, nil)
-      |> Dala.Socket.assign(:history, [])
-      |> Dala.Socket.assign(:total_rolls, 0)
-      |> Dala.Socket.assign(:total_pips, 0)
-    {:ok, socket}
-  end
+  dala do
+    attributes do
+      attribute :face, :string, default: ""
+      attribute :value, :integer, default: 0
+      attribute :history, :list, default: []
+      attribute :total_rolls, :integer, default: 0
+      attribute :total_pips, :integer, default: 0
+      attribute :face_bg, :atom, default: :surface_raised
+      attribute :face_fg, :atom, default: :muted
+      attribute :face_text, :string, default: "？"
+      attribute :roll_label, :string, default: "Roll!"
+      attribute :avg_text, :string, default: "—"
+      attribute :history_text, :string, default: ""
+      attribute :history_count, :string, default: ""
+    end
 
-  def render(assigns) do
-    face_bg = if assigns.face, do: :primary, else: :surface_raised
-    face_fg = if assigns.face, do: :on_primary, else: :muted
-    face_text = assigns.face || "？"
-    roll_label = if assigns.total_rolls == 0, do: "Roll!", else: "Roll again"
-    avg = avg_text(assigns)
-
-    Dala.UI.scroll([background: :background], [
-      Dala.UI.column([background: :background, padding: :space_md], [
-        header("🎲  Dice Roller"),
-        Dala.UI.spacer(size: 32),
-
-        # ── Big die face ─────────────────────────────────────────────
-        Dala.UI.box([background: face_bg, padding: :space_lg], [
-          Dala.UI.text(text: face_text, text_size: 96.0, text_color: face_fg, padding: 0)
-        ]),
-
-        Dala.UI.spacer(size: 24),
-
-        # ── Roll button ───────────────────────────────────────────────
-        Dala.UI.button(text: roll_label, background: :primary, text_color: :on_primary, text_size: :xl, padding: :space_md, on_tap: {self(), :roll}),
-
-        Dala.UI.spacer(size: 32),
-        Dala.UI.divider(color: :border),
-        Dala.UI.spacer(size: 16),
-
-        # ── Stats ─────────────────────────────────────────────────────
-        Dala.UI.row([padding: 0], [
-          stat("Rolls", "#{assigns.total_rolls}"),
-          Dala.UI.spacer(size: 16),
-          stat("Average", avg)
-        ])
-      ] ++ history_section(assigns) ++ [
-        Dala.UI.spacer(size: 32),
-        back_button()
-      ])
-    ])
-  end
-
-  def handle_info({:tap, :roll}, socket) do
-    value   = :rand.uniform(6)
-    face    = Map.fetch!(@faces, value)
-    history = [value | socket.assigns.history] |> Enum.take(@history_max)
-    socket =
-      socket
-      |> Dala.Socket.assign(:value, value)
-      |> Dala.Socket.assign(:face, face)
-      |> Dala.Socket.assign(:history, history)
-      |> Dala.Socket.assign(:total_rolls, socket.assigns.total_rolls + 1)
-      |> Dala.Socket.assign(:total_pips, socket.assigns.total_pips + value)
-    {:noreply, socket}
-  end
-
-  def handle_info({:tap, :back}, socket) do
-    {:noreply, Dala.Socket.pop_screen(socket)}
-  end
-
-  def handle_info(_message, socket), do: {:noreply, socket}
-
-  # ── Helpers ────────────────────────────────────────────────────────────────
-
-  defp avg_text(assigns) do
-    if assigns.total_rolls > 0 do
-      avg = assigns.total_pips / assigns.total_rolls
-      :erlang.float_to_binary(avg, decimals: 2)
-    else
-      "—"
+    screen do
+      name :dice_roller
+      scroll do
+        background :background
+        column do
+          background :background
+          padding :space_md
+          text "🎲  Dice Roller", text_size: :xl, text_color: :on_primary, background: :primary, padding: :space_md
+          spacer size: 32
+          box do
+            background :@face_bg
+            padding :space_lg
+            text "@face_text", text_size: 96.0, text_color: :@face_fg, padding: 0
+          end
+          spacer size: 24
+          button "@roll_label", background: :primary, text_color: :on_primary, text_size: :xl, padding: :space_md, on_tap: :roll
+          spacer size: 32
+          divider color: :border
+          spacer size: 16
+          row do
+            padding 0
+            column do
+              background :surface_raised
+              padding :space_md
+              text "@total_rolls", text_size: :xl, text_color: :primary, padding: 0
+              text "Rolls", text_size: :sm, text_color: :muted, padding: 0
+            end
+            spacer size: 16
+            column do
+              background :surface_raised
+              padding :space_md
+              text "@avg_text", text_size: :xl, text_color: :primary, padding: 0
+              text "Average", text_size: :sm, text_color: :muted, padding: 0
+            end
+          end
+          column do
+            padding 0
+            text "@history_count", text_size: :sm, text_color: :muted, padding: :space_sm
+            box do
+              background :surface_raised
+              padding :space_md
+              text "@history_text", text_size: 28.0, text_color: :on_surface, padding: 0
+            end
+          end
+          spacer size: 32
+          button "← Back", background: :surface_raised, text_color: :on_surface, text_size: :lg, padding: :space_sm, on_tap: :back
+        end
+      end
     end
   end
 
-  defp history_section(%{history: []}), do: []
-  defp history_section(%{history: history}) do
-    history_text =
-      history
-      |> Enum.map(&Map.fetch!(@faces, &1))
-      |> Enum.join("  ")
+  def handle_event(:roll, _params, socket) do
+    value = :rand.uniform(6)
+    face = Map.fetch!(@faces, value)
+    history = [value | socket.assigns.history] |> Enum.take(@history_max)
+    total_rolls = socket.assigns.total_rolls + 1
+    total_pips = socket.assigns.total_pips + value
+    avg = total_pips / total_rolls |> :erlang.float_to_binary(decimals: 2)
+    history_emojis = history |> Enum.map(&Map.fetch!(@faces, &1)) |> Enum.join("  ")
+    history_count = if length(history) > 0, do: "Last #{length(history)} rolls", else: ""
 
-    [
-      Dala.UI.column([padding: 0], [
-        Dala.UI.text(text: "Last #{length(history)} rolls", text_size: :sm, text_color: :muted, padding: :space_sm),
-        Dala.UI.box([background: :surface_raised, padding: :space_md], [
-          Dala.UI.text(text: history_text, text_size: 28.0, text_color: :on_surface, padding: 0)
-        ])
-      ])
-    ]
+    {:noreply,
+     Dala.Ui.Socket.assign(socket,
+       value: value,
+       face: face,
+       history: history,
+       total_rolls: total_rolls,
+       total_pips: total_pips,
+       face_bg: :primary,
+       face_fg: :on_primary,
+       face_text: face,
+       roll_label: "Roll again",
+       avg_text: avg,
+       history_text: history_emojis,
+       history_count: history_count
+     )}
   end
 
-  defp stat(label, value) do
-    Dala.UI.column([background: :surface_raised, padding: :space_md], [
-      Dala.UI.text(text: value, text_size: :xl, text_color: :primary, padding: 0),
-      Dala.UI.text(text: label, text_size: :sm, text_color: :muted, padding: 0)
-    ])
-  end
-
-  defp header(title) do
-    Dala.UI.text(text: title, text_size: :xl, text_color: :on_primary, background: :primary, padding: :space_md)
-  end
-
-  defp back_button do
-    Dala.UI.button(text: "← Back", background: :surface_raised, text_color: :on_surface, text_size: :lg, padding: :space_sm, on_tap: {self(), :back})
+  def handle_event(:back, _params, socket) do
+    {:noreply, Dala.Ui.Socket.pop_screen(socket)}
   end
 end

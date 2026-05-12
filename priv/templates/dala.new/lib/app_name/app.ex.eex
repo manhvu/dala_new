@@ -15,7 +15,7 @@ defmodule <%= module_name %>.App do
     Ecto.Migrator.with_repo(<%= module_name %>.Repo, fn repo ->
       Ecto.Migrator.run(repo, migrations_dir(), :up, all: true)
     end)
-    Dala.Screen.start_root(<%= module_name %>.HomeScreen)
+    Dala.Ui.Socket.start_root(<%= module_name %>.HomeScreen)
     Dala.Dist.ensure_started(node: :"<%= app_name %>_android@127.0.0.1", cookie: :dala_secret)
   end
 

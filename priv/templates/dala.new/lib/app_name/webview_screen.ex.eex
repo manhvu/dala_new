@@ -1,23 +1,28 @@
 defmodule <%= module_name %>.WebViewScreen do
-  use Dala.Screen
+  @moduledoc "WebView demo screen."
+  use Dala.Spark.Dsl
 
-  attributes do
-    attribute :last_msg, :any, default: nil
-  end
+  dala do
+    attributes do
+      attribute :last_msg, :any, default: nil
+    end
 
-  screen do
-    name :webview
-
-    column background: :background, fill_width: true, fill_height: true do
-      text text: "WebView", text_size: :lg, text_color: :on_surface, padding: :space_md
-      text text: "Waiting for JS bridge event...", text_size: :sm, text_color: :muted, padding: :space_sm
-      webview "https://www.google.com", show_url: true
+    screen do
+      name :webview
+      column do
+        background :background
+        fill_width true
+        fill_height true
+        text "WebView", text_size: :lg, text_color: :on_surface, padding: :space_md
+        text "Waiting for JS bridge event…", text_size: :sm, text_color: :muted, padding: :space_sm
+        webview "https://www.google.com", show_url: true
+      end
     end
   end
 
   def handle_info({:webview, :message, data}, socket) do
     socket = Dala.WebView.post_message(socket, %{"echo" => data})
-    {:noreply, Dala.Socket.assign(socket, last_msg: data)}
+    {:noreply, Dala.Ui.Socket.assign(socket, last_msg: data)}
   end
 
   def handle_info(_msg, socket), do: {:noreply, socket}

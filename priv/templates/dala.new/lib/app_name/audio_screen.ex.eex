@@ -1,52 +1,60 @@
 defmodule <%= module_name %>.AudioScreen do
-  use Dala.Screen
+  @moduledoc "Audio playback demo screen."
+  use Dala.Spark.Dsl
 
   @test_audio "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
 
-  def mount(_params, _session, socket) do
-    {:ok, Dala.Socket.assign(socket, status: "idle", volume: 1.0)}
+  dala do
+    attributes do
+      attribute :status, :string, default: "idle"
+      attribute :volume, :float, default: 1.0
+      attribute :status_text, :string, default: "Status: idle"
+      attribute :volume_label, :string, default: "App Volume: 100%"
+    end
+
+    screen do
+      name :audio
+      scroll do
+        background :background
+        column do
+          background :background
+          padding :space_lg
+          text "Audio Playback", text_size: :lg, text_color: :on_surface, padding: :space_sm
+          text "@status_text", text_size: :sm, text_color: :primary, padding: 4
+          spacer size: 20
+          button "Play", background: :primary, text_color: :on_primary, padding: :space_md, fill_width: true, on_tap: :play
+          spacer size: 12
+          button "Stop", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: :stop
+          spacer size: 20
+          text "@volume_label", text_size: :sm, text_color: :on_surface, padding: 4
+          slider min_value: 0.0, max_value: 1.0, value: :@volume, on_change: :volume
+        end
+      end
+    end
   end
 
-  def render(assigns) do
-    status_text = "Status: #{assigns.status}"
-    volume_label = "App Volume: #{round(assigns.volume * 100)}%"
-
-    Dala.UI.scroll([background: :background], [
-      Dala.UI.column([background: :background, padding: :space_lg], [
-        Dala.UI.text(text: "Audio Playback", text_size: :lg, text_color: :on_surface, padding: :space_sm),
-        Dala.UI.text(text: status_text, text_size: :sm, text_color: :primary, padding: 4),
-        Dala.UI.spacer(size: 20),
-        Dala.UI.button(text: "Play", background: :primary, text_color: :on_primary, padding: :space_md, fill_width: true, on_tap: {self(), :play}),
-        Dala.UI.spacer(size: 12),
-        Dala.UI.button(text: "Stop", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: {self(), :stop}),
-        Dala.UI.spacer(size: 20),
-        Dala.UI.text(text: volume_label, text_size: :sm, text_color: :on_surface, padding: 4),
-        Dala.UI.slider(min_value: 0.0, max_value: 1.0, value: assigns.volume, on_change: {self(), :volume})
-      ])
-    ])
-  end
-
-  def handle_info({:tap, :play}, socket) do
+  def handle_event(:play, _params, socket) do
     socket = Dala.Audio.play(socket, @test_audio, volume: socket.assigns.volume)
-    {:noreply, Dala.Socket.assign(socket, status: "playing")}
+    {:noreply, Dala.Ui.Socket.assign(socket, status: "playing", status_text: "Status: playing")}
   end
 
-  def handle_info({:tap, :stop}, socket) do
+  def handle_event(:stop, _params, socket) do
     socket = Dala.Audio.stop_playback(socket)
-    {:noreply, Dala.Socket.assign(socket, status: "stopped")}
+    {:noreply, Dala.Ui.Socket.assign(socket, status: "stopped", status_text: "Status: stopped")}
   end
 
-  def handle_info({:change, :volume, volume}, socket) do
+  def handle_event({:change, :volume, volume}, _params, socket) do
     socket = Dala.Audio.set_volume(socket, volume)
-    {:noreply, Dala.Socket.assign(socket, volume: volume)}
+    label = "App Volume: #{round(volume * 100)}%"
+    {:noreply, Dala.Ui.Socket.assign(socket, volume: volume, volume_label: label)}
   end
 
   def handle_info({:audio, :playback_finished, _}, socket) do
-    {:noreply, Dala.Socket.assign(socket, status: "finished")}
+    {:noreply, Dala.Ui.Socket.assign(socket, status: "finished", status_text: "Status: finished")}
   end
 
   def handle_info({:audio, :playback_error, %{reason: reason}}, socket) do
-    {:noreply, Dala.Socket.assign(socket, status: "error: #{reason}")}
+    {:noreply, Dala.Ui.Socket.assign(socket, status: "error: #{reason}", status_text: "Status: error: #{reason}")}
   end
 
   def handle_info(_msg, socket), do: {:noreply, socket}
