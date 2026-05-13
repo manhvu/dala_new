@@ -3,60 +3,60 @@ defmodule <%= module_name %>.StorageScreen do
   use Dala.Screen
 
   def mount(_params, _session, socket) do
-    {:ok, Dala.Ui.Socket.assign(socket, status: "idle", files: [])}
+    {:ok, Dala.Socket.assign(socket, status: "idle", files: [])}
   end
 
   def render(assigns) do
     status_text = "Status: #{assigns.status}"
 
-    Dala.UI.scroll([background: :background], [
-      Dala.UI.column([background: :background, padding: :space_lg], [
-        Dala.UI.text(text: "Storage", text_size: :lg, text_color: :on_surface, padding: :space_sm),
-        Dala.UI.text(text: status_text, text_size: :sm, text_color: :primary, padding: 4),
-        Dala.UI.spacer(size: 16),
-        Dala.UI.button(text: "Write test file", background: :primary, text_color: :on_primary, padding: :space_md, fill_width: true, on_tap: :write),
-        Dala.UI.spacer(size: 12),
-        Dala.UI.button(text: "List documents", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: :list),
-        Dala.UI.spacer(size: 12),
-        Dala.UI.button(text: "Delete test file", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: :delete),
-        Dala.UI.spacer(size: 20),
+    Dala.Ui.Widgets.scroll([background: :background], [
+      Dala.Ui.Widgets.column([background: :background, padding: :space_lg], [
+        Dala.Ui.Widgets.text(text: "Storage", text_size: :lg, text_color: :on_surface, padding: :space_sm),
+        Dala.Ui.Widgets.text(text: status_text, text_size: :sm, text_color: :primary, padding: 4),
+        Dala.Ui.Widgets.spacer(size: 16),
+        Dala.Ui.Widgets.button(text: "Write test file", background: :primary, text_color: :on_primary, padding: :space_md, fill_width: true, on_tap: :write),
+        Dala.Ui.Widgets.spacer(size: 12),
+        Dala.Ui.Widgets.button(text: "List documents", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: :list),
+        Dala.Ui.Widgets.spacer(size: 12),
+        Dala.Ui.Widgets.button(text: "Delete test file", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: :delete),
+        Dala.Ui.Widgets.spacer(size: 20),
         file_list(assigns.files)
       ])
     ])
   end
 
   def handle_event(:write, _params, socket) do
-    path = Path.join(Dala.Storage.dir(:documents), "<%= app_name %>_test.txt")
-    case Dala.Storage.write(path, "<%= display_name %> storage test\n#{DateTime.utc_now()}") do
-      {:ok, _}        -> {:noreply, Dala.Ui.Socket.assign(socket, status: "written: #{Path.basename(path)}")}
-      {:error, posix} -> {:noreply, Dala.Ui.Socket.assign(socket, status: "write error: #{posix}")}
+    path = Path.join(Dala.Storage.Storage.dir(:documents), "<%= app_name %>_test.txt")
+    case Dala.Storage.Storage.write(path, "<%= display_name %> storage test\n#{DateTime.utc_now()}") do
+      {:ok, _}        -> {:noreply, Dala.Socket.assign(socket, status: "written: #{Path.basename(path)}")}
+      {:error, posix} -> {:noreply, Dala.Socket.assign(socket, status: "write error: #{posix}")}
     end
   end
 
   def handle_event(:list, _params, socket) do
-    case Dala.Storage.list(:documents) do
-      {:ok, files}    -> {:noreply, Dala.Ui.Socket.assign(socket, files: files, status: "#{length(files)} file(s)")}
-      {:error, posix} -> {:noreply, Dala.Ui.Socket.assign(socket, status: "list error: #{posix}")}
+    case Dala.Storage.Storage.list(:documents) do
+      {:ok, files}    -> {:noreply, Dala.Socket.assign(socket, files: files, status: "#{length(files)} file(s)")}
+      {:error, posix} -> {:noreply, Dala.Socket.assign(socket, status: "list error: #{posix}")}
     end
   end
 
   def handle_event(:delete, _params, socket) do
-    path = Path.join(Dala.Storage.dir(:documents), "<%= app_name %>_test.txt")
-    case Dala.Storage.delete(path) do
-      :ok             -> {:noreply, Dala.Ui.Socket.assign(socket, status: "deleted")}
-      {:error, posix} -> {:noreply, Dala.Ui.Socket.assign(socket, status: "delete error: #{posix}")}
+    path = Path.join(Dala.Storage.Storage.dir(:documents), "<%= app_name %>_test.txt")
+    case Dala.Storage.Storage.delete(path) do
+      :ok             -> {:noreply, Dala.Socket.assign(socket, status: "deleted")}
+      {:error, posix} -> {:noreply, Dala.Socket.assign(socket, status: "delete error: #{posix}")}
     end
   end
 
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   defp file_list([]) do
-    Dala.UI.text(text: "No files listed yet", text_size: :sm, text_color: :muted, padding: 4)
+    Dala.Ui.Widgets.text(text: "No files listed yet", text_size: :sm, text_color: :muted, padding: 4)
   end
   defp file_list(files) do
-    Dala.UI.column([padding: 0],
+    Dala.Ui.Widgets.column([padding: 0],
       Enum.map(files, fn f ->
-        Dala.UI.text(text: Path.basename(f), text_size: :sm, text_color: :on_surface, padding: 4)
+        Dala.Ui.Widgets.text(text: Path.basename(f), text_size: :sm, text_color: :on_surface, padding: 4)
       end)
     )
   end

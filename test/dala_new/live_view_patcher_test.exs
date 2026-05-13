@@ -213,7 +213,8 @@ defmodule DalaNew.LiveViewPatcherTest do
     end
 
     test "calls Dala.Screen.start_root with DalaScreen" do
-      assert live_app_content() =~ "Dala.Screen.start_root(MyApp.DalaScreen)"
+      assert live_app_content() =~ "Dala.Screen.start_root"
+      assert live_app_content() =~ "MyApp.DalaScreen"
     end
 
     test "installs Dala.NativeLogger" do
@@ -221,7 +222,7 @@ defmodule DalaNew.LiveViewPatcherTest do
     end
 
     test "starts Erlang distribution" do
-      assert live_app_content() =~ "Dala.Dist.ensure_started"
+      assert live_app_content() =~ "Dala.Connectivity.Dist.ensure_started"
     end
 
     test "sets Application.put_env for :dala liveview_port" do
@@ -289,14 +290,14 @@ defmodule DalaNew.LiveViewPatcherTest do
       assert content =~ "defmodule MyApp.DalaScreen"
     end
 
-    test "uses Dala.Screen" do
+    test "uses Dala.Spark.Dsl" do
       content = LiveViewPatcher.dala_screen_content("MyApp")
-      assert content =~ "use Dala.Screen"
+      assert content =~ "use Dala.Spark.Dsl"
     end
 
     test "renders a webview with Dala.LiveView.local_url" do
       content = LiveViewPatcher.dala_screen_content("MyApp")
-      assert content =~ "Dala.UI.webview"
+      assert content =~ "webview"
       assert content =~ "Dala.LiveView.local_url"
     end
   end

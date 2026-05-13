@@ -1,56 +1,52 @@
 defmodule <%= module_name %>.TextScreen do
   @moduledoc "Text input demo screen."
-  use Dala.Spark.Dsl
+  use Dala.Screen
 
-  dala do
-    attributes do
-      attribute :text, :string, default: ""
-      attribute :focused, :boolean, default: false
-      attribute :char_count, :integer, default: 0
-    end
+  def mount(_params, _session, socket) do
+    draft = Dala.Platform.State.get(:draft_text, "")
+    socket =
+      socket
+      |> Dala.Socket.assign(:text, draft)
+      |> Dala.Socket.assign(:focused, false)
+      |> Dala.Socket.assign(:char_count, String.length(draft))
+    {:ok, socket}
+  end
 
-    screen do
-      name :text_input
-      scroll do
-        background :background
-        column do
-          background :background
-          padding :space_md
-          text "✏️  Text Input", text_size: :xl, text_color: :on_primary, background: :primary, padding: :space_md
-          spacer size: 24
-          text_field placeholder: "Type something…", keyboard_type: :default, return_key: :done, on_change: :text_changed, on_focus: :focused, on_blur: :blurred
-          spacer size: 8
-          text "@char_count characters", text_size: :sm, text_color: :muted, padding: 4
-          spacer size: 24
-          divider color: :border
-          spacer size: 16
-          text "Preview", text_size: :sm, text_color: :muted, padding: :space_sm
-          column do
-            background :surface_raised
-            padding :space_md
-            text "@text", text_size: :lg, text_color: :on_surface, padding: 0
-          end
-          spacer size: 32
-          button "← Back", background: :surface_raised, text_color: :on_surface, text_size: :lg, padding: :space_sm, on_tap: :back
-        end
-      end
-    end
+  def render(assigns) do
+    Dala.Ui.Widgets.scroll([background: :background], [
+      Dala.Ui.Widgets.column([background: :background, padding: :space_md], [
+        Dala.Ui.Widgets.text(text: "✏️  Text Input", text_size: :xl, text_color: :on_primary, background: :primary, padding: :space_md),
+        Dala.Ui.Widgets.spacer(size: 24),
+        Dala.Ui.Widgets.text_field(placeholder: "Type something…", keyboard_type: :default, return_key: :done, on_change: :text_changed, on_focus: :focused, on_blur: :blurred),
+        Dala.Ui.Widgets.spacer(size: 8),
+        Dala.Ui.Widgets.text(text: "#{assigns.char_count} characters", text_size: :sm, text_color: :muted, padding: 4),
+        Dala.Ui.Widgets.spacer(size: 24),
+        Dala.Ui.Widgets.divider(color: :border),
+        Dala.Ui.Widgets.spacer(size: 16),
+        Dala.Ui.Widgets.text(text: "Preview", text_size: :sm, text_color: :muted, padding: :space_sm),
+        Dala.Ui.Widgets.column([background: :surface_raised, padding: :space_md], [
+          Dala.Ui.Widgets.text(text: assigns.text, text_size: :lg, text_color: :on_surface, padding: 0)
+        ]),
+        Dala.Ui.Widgets.spacer(size: 32),
+        Dala.Ui.Widgets.button(text: "← Back", background: :surface_raised, text_color: :on_surface, text_size: :lg, padding: :space_sm, on_tap: :back)
+      ])
+    ])
   end
 
   def handle_event({:change, :text_changed, value}, _params, socket) do
-    Dala.State.put(:draft_text, value)
-    {:noreply, Dala.Ui.Socket.assign(socket, text: value, char_count: String.length(value))}
+    Dala.Platform.State.put(:draft_text, value)
+    {:noreply, Dala.Socket.assign(socket, text: value, char_count: String.length(value))}
   end
 
   def handle_event(:focused, _params, socket) do
-    {:noreply, Dala.Ui.Socket.assign(socket, :focused, true)}
+    {:noreply, Dala.Socket.assign(socket, :focused, true)}
   end
 
   def handle_event(:blurred, _params, socket) do
-    {:noreply, Dala.Ui.Socket.assign(socket, :focused, false)}
+    {:noreply, Dala.Socket.assign(socket, :focused, false)}
   end
 
   def handle_event(:back, _params, socket) do
-    {:noreply, Dala.Ui.Socket.pop_screen(socket)}
+    {:noreply, Dala.Socket.pop_screen(socket)}
   end
 end

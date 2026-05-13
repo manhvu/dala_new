@@ -12,8 +12,7 @@ defmodule <%= module_name %>.AudioScreen do
       attribute :volume_label, :string, default: "App Volume: 100%"
     end
 
-    screen do
-      name :audio
+    screen name: :audio do
       scroll do
         background :background
         column do
@@ -35,26 +34,26 @@ defmodule <%= module_name %>.AudioScreen do
 
   def handle_event(:play, _params, socket) do
     socket = Dala.Audio.play(socket, @test_audio, volume: socket.assigns.volume)
-    {:noreply, Dala.Ui.Socket.assign(socket, status: "playing", status_text: "Status: playing")}
+    {:noreply, Dala.Socket.assign(socket, status: "playing", status_text: "Status: playing")}
   end
 
   def handle_event(:stop, _params, socket) do
     socket = Dala.Audio.stop_playback(socket)
-    {:noreply, Dala.Ui.Socket.assign(socket, status: "stopped", status_text: "Status: stopped")}
+    {:noreply, Dala.Socket.assign(socket, status: "stopped", status_text: "Status: stopped")}
   end
 
   def handle_event({:change, :volume, volume}, _params, socket) do
     socket = Dala.Audio.set_volume(socket, volume)
     label = "App Volume: #{round(volume * 100)}%"
-    {:noreply, Dala.Ui.Socket.assign(socket, volume: volume, volume_label: label)}
+    {:noreply, Dala.Socket.assign(socket, volume: volume, volume_label: label)}
   end
 
   def handle_info({:audio, :playback_finished, _}, socket) do
-    {:noreply, Dala.Ui.Socket.assign(socket, status: "finished", status_text: "Status: finished")}
+    {:noreply, Dala.Socket.assign(socket, status: "finished", status_text: "Status: finished")}
   end
 
   def handle_info({:audio, :playback_error, %{reason: reason}}, socket) do
-    {:noreply, Dala.Ui.Socket.assign(socket, status: "error: #{reason}", status_text: "Status: error: #{reason}")}
+    {:noreply, Dala.Socket.assign(socket, status: "error: #{reason}", status_text: "Status: error: #{reason}")}
   end
 
   def handle_info(_msg, socket), do: {:noreply, socket}

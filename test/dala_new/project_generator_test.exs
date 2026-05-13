@@ -514,9 +514,9 @@ defmodule DalaNew.ProjectGeneratorTest do
 
     # ── State persistence ─────────────────────────────────────────────────────
     #
-    # The home screen reads the persisted theme from Dala.State on mount so the
+    # The home screen reads the persisted theme from Dala.Platform.State on mount so the
     # user's last selection is restored after an app kill. Theme changes are
-    # written through to Dala.State so they survive the next restart.
+    # written through to Dala.Platform.State so they survive the next restart.
 
     # ── Rock Paper Scissors (Ecto demo) ───────────────────────────────────────
 
@@ -590,23 +590,23 @@ defmodule DalaNew.ProjectGeneratorTest do
       refute content =~ "Browse List"
     end
 
-    test "text_screen.ex restores draft text from Dala.State on mount", %{tmp: tmp} do
+    test "text_screen.ex restores draft text from Dala.Platform.State on mount", %{tmp: tmp} do
       {:ok, dir} = ProjectGenerator.generate("test_app", tmp)
       content = File.read!(Path.join(dir, "lib/test_app/text_screen.ex"))
-      assert content =~ "Dala.State.get(:draft_text"
-      assert content =~ "Dala.State.put(:draft_text"
+      assert content =~ "Dala.Platform.State.get(:draft_text"
+      assert content =~ "Dala.Platform.State.put(:draft_text"
     end
 
-    test "home_screen.ex restores theme from Dala.State on mount", %{tmp: tmp} do
+    test "home_screen.ex restores theme from Dala.Platform.State on mount", %{tmp: tmp} do
       {:ok, dir} = ProjectGenerator.generate("test_app", tmp)
       content = File.read!(Path.join(dir, "lib/test_app/home_screen.ex"))
-      assert content =~ "Dala.State.get(:theme"
+      assert content =~ "Dala.Platform.State.get(:theme"
     end
 
-    test "home_screen.ex persists theme selection via Dala.State.put", %{tmp: tmp} do
+    test "home_screen.ex persists theme selection via Dala.Platform.State.put", %{tmp: tmp} do
       {:ok, dir} = ProjectGenerator.generate("test_app", tmp)
       content = File.read!(Path.join(dir, "lib/test_app/home_screen.ex"))
-      assert content =~ "Dala.State.put(:theme"
+      assert content =~ "Dala.Platform.State.put(:theme"
     end
 
     test "home_screen.ex does not eagerly evaluate Path.expand in System.get_env default",
@@ -916,11 +916,11 @@ defmodule DalaNew.ProjectGeneratorTest do
     end
 
     @tag :integration
-    test "dala_screen.ex uses correct module name and Dala.Screen", %{tmp: tmp} do
+    test "dala_screen.ex uses correct module name and Dala.Spark.Dsl", %{tmp: tmp} do
       {:ok, dir} = ProjectGenerator.liveview_generate("lv_test", tmp)
       content = File.read!(Path.join(dir, "lib/lv_test/dala_screen.ex"))
       assert content =~ "defmodule LvTest.DalaScreen"
-      assert content =~ "use Dala.Screen"
+      assert content =~ "use Dala.Spark.Dsl"
       assert content =~ "Dala.LiveView.local_url"
     end
 

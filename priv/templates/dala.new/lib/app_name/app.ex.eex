@@ -1,10 +1,11 @@
 defmodule <%= module_name %>.App do
   @moduledoc "Application entry point for <%= display_name %>."
 
-  use Dala.App
+  use Dala.App, theme: Dala.Theme.Obsidian
 
   @impl Dala.App
   def navigation(_platform) do
+    screens([<%= module_name %>.HomeScreen])
     stack(:main, root: <%= module_name %>.HomeScreen)
   end
 
@@ -15,8 +16,9 @@ defmodule <%= module_name %>.App do
     Ecto.Migrator.with_repo(<%= module_name %>.Repo, fn repo ->
       Ecto.Migrator.run(repo, migrations_dir(), :up, all: true)
     end)
-    Dala.Ui.Socket.start_root(<%= module_name %>.HomeScreen)
-    Dala.Dist.ensure_started(node: :"<%= app_name %>_android@127.0.0.1", cookie: :dala_secret)
+    {:ok, _pid} = Dala.Screen.start_root(<%= module_name %>.HomeScreen)
+    cookie = Dala.Connectivity.Dist.cookie_from_env("MY_APP_DIST_COOKIE", "<%= app_name %>")
+    Dala.Connectivity.Dist.ensure_started(node: :"<%= app_name %>_android@127.0.0.1", cookie: cookie)
   end
 
   # Returns the path to the migrations directory for the current environment.

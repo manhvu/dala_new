@@ -7,8 +7,7 @@ defmodule <%= module_name %>.WebViewScreen do
       attribute :last_msg, :any, default: nil
     end
 
-    screen do
-      name :webview
+    screen name: :webview do
       column do
         background :background
         fill_width true
@@ -21,8 +20,8 @@ defmodule <%= module_name %>.WebViewScreen do
   end
 
   def handle_info({:webview, :message, data}, socket) do
-    socket = Dala.WebView.post_message(socket, %{"echo" => data})
-    {:noreply, Dala.Ui.Socket.assign(socket, last_msg: data)}
+    socket = Dala.Ui.Embedded.Webview.post_message(socket, %{"echo" => data})
+    {:noreply, Dala.Socket.assign(socket, last_msg: data)}
   end
 
   def handle_info(_msg, socket), do: {:noreply, socket}

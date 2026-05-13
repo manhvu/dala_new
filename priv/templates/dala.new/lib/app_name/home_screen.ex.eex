@@ -1,94 +1,88 @@
 defmodule <%= module_name %>.HomeScreen do
   @moduledoc "Landing screen for <%= display_name %>."
-  use Dala.Spark.Dsl
+  use Dala.Screen
 
-  dala do
-    attributes do
-      attribute :theme, :atom, default: :obsidian
-    end
+  def mount(_params, _session, socket) do
+    theme = Dala.Platform.State.get(:theme, :obsidian)
+    {:ok, Dala.Socket.assign(socket, :theme, theme)}
+  end
 
-    screen do
-      name :home
-      scroll do
-        background :background
-        column do
-          background :background
-          padding :space_lg
-          text "<%= display_name %>", text_size: :xl, text_color: :on_surface, padding: :space_sm
-          text "BEAM running on device", text_size: :sm, text_color: :primary, padding: 4
-          spacer size: 40
-          button "Text Input", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_text
-          spacer size: 12
-          button "Rock Paper Scissors", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_list
-          spacer size: 12
-          button "Roll Dice", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_dice
-          spacer size: 12
-          button "WebView", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_webview
-          spacer size: 12
-          button "Audio", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_audio
-          spacer size: 12
-          button "Camera", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_camera
-          spacer size: 12
-          button "Storage", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_storage
-          spacer size: 32
-          text "Theme", text_size: :sm, text_color: :muted, padding: 4
-          spacer size: 8
-          row do
-            fill_width true
-            button "Obsidian", background: :primary, text_color: :on_primary, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_obsidian
-            spacer size: 8
-            button "Citrus", background: :surface, text_color: :on_surface, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_citrus
-            spacer size: 8
-            button "Birch", background: :surface, text_color: :on_surface, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_birch
-          end
-        end
-      end
-    end
+  def render(assigns) do
+    Dala.Ui.Widgets.scroll([background: :background], [
+      Dala.Ui.Widgets.column([background: :background, padding: :space_lg], [
+        Dala.Ui.Widgets.text(text: "<%= display_name %>", text_size: :xl, text_color: :on_surface, padding: :space_sm),
+        Dala.Ui.Widgets.text(text: "BEAM running on device", text_size: :sm, text_color: :primary, padding: 4),
+        Dala.Ui.Widgets.spacer(size: 40),
+        Dala.Ui.Widgets.button(text: "Text Input", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_text),
+        Dala.Ui.Widgets.spacer(size: 12),
+        Dala.Ui.Widgets.button(text: "Rock Paper Scissors", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_list),
+        Dala.Ui.Widgets.spacer(size: 12),
+        Dala.Ui.Widgets.button(text: "Roll Dice", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_dice),
+        Dala.Ui.Widgets.spacer(size: 12),
+        Dala.Ui.Widgets.button(text: "WebView", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_webview),
+        Dala.Ui.Widgets.spacer(size: 12),
+        Dala.Ui.Widgets.button(text: "Audio", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_audio),
+        Dala.Ui.Widgets.spacer(size: 12),
+        Dala.Ui.Widgets.button(text: "Camera", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_camera),
+        Dala.Ui.Widgets.spacer(size: 12),
+        Dala.Ui.Widgets.button(text: "Storage", background: :primary, text_color: :on_primary, text_size: :lg, padding: :space_md, fill_width: true, on_tap: :open_storage),
+        Dala.Ui.Widgets.spacer(size: 32),
+        Dala.Ui.Widgets.text(text: "Theme", text_size: :sm, text_color: :muted, padding: 4),
+        Dala.Ui.Widgets.spacer(size: 8),
+        Dala.Ui.Widgets.row([fill_width: true], [
+          Dala.Ui.Widgets.button(text: "Obsidian", background: :primary, text_color: :on_primary, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_obsidian),
+          Dala.Ui.Widgets.spacer(size: 8),
+          Dala.Ui.Widgets.button(text: "Citrus", background: :surface, text_color: :on_surface, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_citrus),
+          Dala.Ui.Widgets.spacer(size: 8),
+          Dala.Ui.Widgets.button(text: "Birch", background: :surface, text_color: :on_surface, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_birch)
+        ])
+      ])
+    ])
   end
 
   def handle_event(:open_text, _params, socket) do
-    {:noreply, Dala.Ui.Socket.push_screen(socket, <%= module_name %>.TextScreen)}
+    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.TextScreen)}
   end
 
   def handle_event(:open_list, _params, socket) do
-    {:noreply, Dala.Ui.Socket.push_screen(socket, <%= module_name %>.ListScreen)}
+    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.ListScreen)}
   end
 
   def handle_event(:open_dice, _params, socket) do
-    {:noreply, Dala.Ui.Socket.push_screen(socket, <%= module_name %>.DiceScreen)}
+    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.DiceScreen)}
   end
 
   def handle_event(:open_webview, _params, socket) do
-    {:noreply, Dala.Ui.Socket.push_screen(socket, <%= module_name %>.WebViewScreen)}
+    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.WebViewScreen)}
   end
 
   def handle_event(:open_audio, _params, socket) do
-    {:noreply, Dala.Ui.Socket.push_screen(socket, <%= module_name %>.AudioScreen)}
+    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.AudioScreen)}
   end
 
   def handle_event(:open_camera, _params, socket) do
-    {:noreply, Dala.Ui.Socket.push_screen(socket, <%= module_name %>.CameraScreen)}
+    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.CameraScreen)}
   end
 
   def handle_event(:open_storage, _params, socket) do
-    {:noreply, Dala.Ui.Socket.push_screen(socket, <%= module_name %>.StorageScreen)}
+    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.StorageScreen)}
   end
 
   def handle_event(:theme_obsidian, _params, socket) do
     Dala.Theme.set(Dala.Theme.Obsidian)
-    Dala.State.put(:theme, :obsidian)
-    {:noreply, Dala.Ui.Socket.assign(socket, :theme, :obsidian)}
+    Dala.Platform.State.put(:theme, :obsidian)
+    {:noreply, Dala.Socket.assign(socket, :theme, :obsidian)}
   end
 
   def handle_event(:theme_citrus, _params, socket) do
     Dala.Theme.set(Dala.Theme.Citrus)
-    Dala.State.put(:theme, :citrus)
-    {:noreply, Dala.Ui.Socket.assign(socket, :theme, :citrus)}
+    Dala.Platform.State.put(:theme, :citrus)
+    {:noreply, Dala.Socket.assign(socket, :theme, :citrus)}
   end
 
   def handle_event(:theme_birch, _params, socket) do
     Dala.Theme.set(Dala.Theme.Birch)
-    Dala.State.put(:theme, :birch)
-    {:noreply, Dala.Ui.Socket.assign(socket, :theme, :birch)}
+    Dala.Platform.State.put(:theme, :birch)
+    {:noreply, Dala.Socket.assign(socket, :theme, :birch)}
   end
 end

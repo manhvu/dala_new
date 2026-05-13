@@ -21,8 +21,7 @@ defmodule <%= module_name %>.DiceScreen do
       attribute :history_count, :string, default: ""
     end
 
-    screen do
-      name :dice_roller
+    screen name: :dice_roller do
       scroll do
         background :background
         column do
@@ -83,7 +82,7 @@ defmodule <%= module_name %>.DiceScreen do
     history_count = if length(history) > 0, do: "Last #{length(history)} rolls", else: ""
 
     {:noreply,
-     Dala.Ui.Socket.assign(socket,
+     Dala.Socket.assign(socket,
        value: value,
        face: face,
        history: history,
@@ -100,6 +99,6 @@ defmodule <%= module_name %>.DiceScreen do
   end
 
   def handle_event(:back, _params, socket) do
-    {:noreply, Dala.Ui.Socket.pop_screen(socket)}
+    {:noreply, Dala.Socket.pop_screen(socket)}
   end
 end

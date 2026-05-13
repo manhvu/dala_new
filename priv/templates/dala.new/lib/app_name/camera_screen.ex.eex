@@ -4,75 +4,75 @@ defmodule <%= module_name %>.CameraScreen do
 
   def mount(_params, _session, socket) do
     socket = Dala.Permissions.request(socket, :camera)
-    {:ok, Dala.Ui.Socket.assign(socket, previewing: false, status: "requesting permission…", last_capture: nil)}
+    {:ok, Dala.Socket.assign(socket, previewing: false, status: "requesting permission…", last_capture: nil)}
   end
 
   def render(assigns) do
     status_text = "Status: #{assigns.status}"
 
-    Dala.UI.column([background: :background, fill_width: true, fill_height: true], [
-      Dala.UI.text(text: "Camera", text_size: :lg, text_color: :on_surface, padding: :space_md),
-      Dala.UI.text(text: status_text, text_size: :sm, text_color: :primary, padding: 4),
+    Dala.Ui.Widgets.column([background: :background, fill_width: true, fill_height: true], [
+      Dala.Ui.Widgets.text(text: "Camera", text_size: :lg, text_color: :on_surface, padding: :space_md),
+      Dala.Ui.Widgets.text(text: status_text, text_size: :sm, text_color: :primary, padding: 4),
       preview_or_placeholder(assigns),
-      Dala.UI.row([fill_width: true, padding: :space_md], [
+      Dala.Ui.Widgets.row([fill_width: true, padding: :space_md], [
         preview_toggle(assigns.previewing),
-        Dala.UI.spacer(size: 12),
-        Dala.UI.button(text: "Capture Photo", background: :primary, text_color: :on_primary, padding: :space_md, fill_width: true, on_tap: :capture_photo)
+        Dala.Ui.Widgets.spacer(size: 12),
+        Dala.Ui.Widgets.button(text: "Capture Photo", background: :primary, text_color: :on_primary, padding: :space_md, fill_width: true, on_tap: :capture_photo)
       ])
     ])
   end
 
   def handle_info({:permission, :camera, :granted}, socket) do
-    {:noreply, Dala.Ui.Socket.assign(socket, status: "idle")}
+    {:noreply, Dala.Socket.assign(socket, status: "idle")}
   end
 
   def handle_info({:permission, :camera, :denied}, socket) do
-    {:noreply, Dala.Ui.Socket.assign(socket, status: "camera permission denied")}
+    {:noreply, Dala.Socket.assign(socket, status: "camera permission denied")}
   end
 
   def handle_event(:start_preview, _params, socket) do
     socket = Dala.Camera.start_preview(socket, facing: :back)
-    {:noreply, Dala.Ui.Socket.assign(socket, previewing: true, status: "preview starting…")}
+    {:noreply, Dala.Socket.assign(socket, previewing: true, status: "preview starting…")}
   end
 
   def handle_event(:stop_preview, _params, socket) do
     socket = Dala.Camera.stop_preview(socket)
-    {:noreply, Dala.Ui.Socket.assign(socket, previewing: false, status: "preview stopped")}
+    {:noreply, Dala.Socket.assign(socket, previewing: false, status: "preview stopped")}
   end
 
   def handle_event(:capture_photo, _params, socket) do
     socket = Dala.Camera.capture_photo(socket, quality: :high)
-    {:noreply, Dala.Ui.Socket.assign(socket, status: "camera opening…")}
+    {:noreply, Dala.Socket.assign(socket, status: "camera opening…")}
   end
 
   def handle_info({:camera, :photo, %{path: path}}, socket) do
-    {:noreply, Dala.Ui.Socket.assign(socket, last_capture: path, status: "photo: #{Path.basename(path)}")}
+    {:noreply, Dala.Socket.assign(socket, last_capture: path, status: "photo: #{Path.basename(path)}")}
   end
 
   def handle_info({:camera, :cancelled}, socket) do
-    {:noreply, Dala.Ui.Socket.assign(socket, status: "cancelled")}
+    {:noreply, Dala.Socket.assign(socket, status: "cancelled")}
   end
 
   def handle_info({:camera, :error, reason}, socket) do
-    {:noreply, Dala.Ui.Socket.assign(socket, status: "error: #{inspect(reason)}")}
+    {:noreply, Dala.Socket.assign(socket, status: "error: #{inspect(reason)}")}
   end
 
   def handle_info(_msg, socket), do: {:noreply, socket}
 
   defp preview_or_placeholder(%{previewing: true}) do
-    Dala.UI.camera_preview(facing: :back)
+    Dala.Ui.Widgets.camera_preview(facing: :back)
   end
   defp preview_or_placeholder(_) do
-    Dala.UI.column([background: :surface, fill_width: true], [
-      Dala.UI.text(text: "Preview off", text_size: :sm, text_color: :muted, padding: :space_md)
+    Dala.Ui.Widgets.column([background: :surface, fill_width: true], [
+      Dala.Ui.Widgets.text(text: "Preview off", text_size: :sm, text_color: :muted, padding: :space_md)
     ])
   end
 
   defp preview_toggle(true) do
-    Dala.UI.button(text: "Stop Preview", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: :stop_preview)
+    Dala.Ui.Widgets.button(text: "Stop Preview", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: :stop_preview)
   end
   defp preview_toggle(false) do
-    Dala.UI.button(text: "Start Preview", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: :start_preview)
+    Dala.Ui.Widgets.button(text: "Start Preview", background: :surface, text_color: :on_surface, padding: :space_md, fill_width: true, on_tap: :start_preview)
   end
 
   def terminate(_reason, socket) do
