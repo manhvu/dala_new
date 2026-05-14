@@ -631,7 +631,7 @@ defmodule DalaNew.ProjectGeneratorTest do
     #
     # Every generated app ships with Ecto + ecto_sqlite3 so developers get a
     # familiar Repo API without any extra setup. The native code (dala_beam.c /
-    # dala_beam.m) sets MOB_DATA_DIR to the platform's persistent storage dir;
+    # dala_beam.m) sets DALA_DATA_DIR to the platform's persistent storage dir;
     # Repo.init/2 reads it to place the database file.
 
     test "mix.exs includes ecto_sqlite3 dependency", %{tmp: tmp} do
@@ -653,7 +653,7 @@ defmodule DalaNew.ProjectGeneratorTest do
       assert content =~ "Ecto.Adapters.SQLite3"
     end
 
-    test "repo.ex init/2 reads MOB_DATA_DIR and sets pool_size: 1", %{tmp: tmp} do
+    test "repo.ex init/2 reads DALA_DATA_DIR and sets pool_size: 1", %{tmp: tmp} do
       {:ok, dir} = ProjectGenerator.generate("test_app", tmp)
       content = File.read!(Path.join(dir, "lib/test_app/repo.ex"))
       assert content =~ "DALA_DATA_DIR"
@@ -693,7 +693,7 @@ defmodule DalaNew.ProjectGeneratorTest do
       assert content =~ "exqlite/c_src/sqlite3.c"
     end
 
-    test "CMakeLists.txt sqlite3_nif links to MOB_DEPS_DIR derived from relative path", %{
+    test "CMakeLists.txt sqlite3_nif links to DALA_DEPS_DIR derived from relative path", %{
       tmp: tmp
     } do
       {:ok, dir} = ProjectGenerator.generate("test_app", tmp)
@@ -720,16 +720,16 @@ defmodule DalaNew.ProjectGeneratorTest do
       assert content =~ "target_link_libraries(testapp\n    PRIVATE"
     end
 
-    # ── MOB_BEAMS_DIR migration path — Ecto on flat -pa directories ──────────────
+    # ── DALA_BEAMS_DIR migration path — Ecto on flat -pa directories ──────────────
     #
     # Ecto.Migrator.run/3 uses :code.priv_dir(app) to find .exs files. That
     # function requires an OTP lib structure (lib/APP-VERSION/ebin/); Dala apps
     # deploy to a flat -pa dir so it returns {error, bad_name} and Ecto silently
     # logs "Migrations already up" without creating any tables. The fix is to
-    # read MOB_BEAMS_DIR (set by dala_beam.c/dala_beam.m) and pass an explicit
+    # read DALA_BEAMS_DIR (set by dala_beam.c/dala_beam.m) and pass an explicit
     # path to Ecto.Migrator.run/4 instead.
 
-    test "app.ex uses MOB_BEAMS_DIR env var to locate migrations on device", %{tmp: tmp} do
+    test "app.ex uses DALA_BEAMS_DIR env var to locate migrations on device", %{tmp: tmp} do
       {:ok, dir} = ProjectGenerator.generate("test_app", tmp)
       content = File.read!(Path.join(dir, "lib/test_app/app.ex"))
       assert content =~ "DALA_BEAMS_DIR"
@@ -969,7 +969,7 @@ defmodule DalaNew.ProjectGeneratorTest do
     end
 
     @tag :integration
-    test "dala_app.ex starts Phoenix app and MobScreen", %{tmp: tmp} do
+    test "dala_app.ex starts Phoenix app and DalaScreen", %{tmp: tmp} do
       {:ok, dir} = ProjectGenerator.liveview_generate("lv_test", tmp)
       content = File.read!(Path.join(dir, "lib/lv_test/dala_app.ex"))
       assert content =~ "defmodule LvTest.DalaApp"
@@ -1130,7 +1130,7 @@ defmodule DalaNew.ProjectGeneratorTest do
     @tag :integration
     test "config ports are 4200 (host endpoint must match on-device dala_app.ex)",
          %{tmp: tmp} do
-      # phx.new defaults dev=4000, test=4002, runtime PORT=4000 — but Mob's
+      # phx.new defaults dev=4000, test=4002, runtime PORT=4000 — but Dala's
       # dala_app.ex pins the on-device endpoint to 4200, and another developer
       # running `mix phx.server` on 4000 would collide with the generated
       # project's setup. Pin all three files so the ports stay aligned.
