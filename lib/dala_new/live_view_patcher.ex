@@ -135,7 +135,7 @@ defmodule DalaNew.LiveViewPatcher do
 
       dala do
         screen name: :dala_screen do
-          webview Dala.LiveView.local_url("/"), show_url: false
+          webview "http://127.0.0.1:4200/", show_url: false
         end
       end
     end
@@ -238,14 +238,14 @@ defmodule DalaNew.LiveViewPatcher do
 
         # ComponentRegistry is normally started by Dala.App but we bypass that.
         # Start it standalone so Dala.Screen.start_root can render components.
-        {:ok, _} = Dala.ComponentRegistry.start_link()
+        {:ok, _} = Dala.Ui.NativeView.Registry.start_link()
 
         # Start the DalaScreen WebView pointing at the local Phoenix endpoint.
         # The WebView loads http://127.0.0.1:<liveview_port>/ (see dala.exs).
         {:ok, _pid} = Dala.Screen.start_root(#{module_name}.DalaScreen)
 
         # Start Erlang distribution so `mix dala.connect` can attach.
-        cookie = Dala.Connectivity.Dist.cookie_from_env("MY_APP_DIST_COOKIE", "#{app_name}")
+        cookie = Dala.Connectivity.Dist.cookie_from_env("#{app_name}_DIST_COOKIE", "#{app_name}")
         Dala.Connectivity.Dist.ensure_started(node: :"#{app_name}_android@127.0.0.1", cookie: cookie)
       end
 

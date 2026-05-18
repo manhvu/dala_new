@@ -1,5 +1,5 @@
 defmodule <%= module_name %>.HomeScreen do
-  @moduledoc "Landing screen for <%= display_name %>."
+  @moduledoc "Landing screen for <%= display_name %>"
   use Dala.Screen
 
   def mount(_params, _session, socket) do
@@ -57,32 +57,35 @@ defmodule <%= module_name %>.HomeScreen do
   end
 
   def handle_event(:open_audio, _params, socket) do
-    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.AudioScreen)}
+    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.AudioScreen, %{})}
   end
 
   def handle_event(:open_camera, _params, socket) do
-    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.CameraScreen)}
+    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.CameraScreen, %{})}
   end
 
   def handle_event(:open_storage, _params, socket) do
-    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.StorageScreen)}
+    {:noreply, Dala.Socket.push_screen(socket, <%= module_name %>.StorageScreen, %{})}
   end
 
   def handle_event(:theme_obsidian, _params, socket) do
     Dala.Theme.set(Dala.Theme.Obsidian)
     Dala.Platform.State.put(:theme, :obsidian)
+    Dala.Hardware.Haptic.trigger(socket, :light)
     {:noreply, Dala.Socket.assign(socket, :theme, :obsidian)}
   end
 
   def handle_event(:theme_citrus, _params, socket) do
     Dala.Theme.set(Dala.Theme.Citrus)
     Dala.Platform.State.put(:theme, :citrus)
+    Dala.Hardware.Haptic.trigger(socket, :light)
     {:noreply, Dala.Socket.assign(socket, :theme, :citrus)}
   end
 
   def handle_event(:theme_birch, _params, socket) do
     Dala.Theme.set(Dala.Theme.Birch)
     Dala.Platform.State.put(:theme, :birch)
+    Dala.Hardware.Haptic.trigger(socket, :light)
     {:noreply, Dala.Socket.assign(socket, :theme, :birch)}
   end
 end

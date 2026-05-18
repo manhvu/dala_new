@@ -17,7 +17,7 @@ defmodule <%= module_name %>.App do
       Ecto.Migrator.run(repo, migrations_dir(), :up, all: true)
     end)
     {:ok, _pid} = Dala.Screen.start_root(<%= module_name %>.HomeScreen)
-    cookie = Dala.Connectivity.Dist.cookie_from_env("MY_APP_DIST_COOKIE", "<%= app_name %>")
+    cookie = Dala.Connectivity.Dist.cookie_from_env("<%= app_name %>_DIST_COOKIE", "<%= app_name %>")
     Dala.Connectivity.Dist.ensure_started(node: :"<%= app_name %>_android@127.0.0.1", cookie: cookie)
   end
 

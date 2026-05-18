@@ -13,6 +13,33 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [Unreleased]
 
+## [v0.2.0](https://github.com/manhvu/dala/compare/v0.1.1...v0.2.0)
+
+### Features:
+
+* Update dala dependency version to `~> 0.2.0`
+* Update dala_dev dependency version to `~> 0.2.0`
+* Add `jason` dependency to generated projects (required by upstream dala)
+* Add `generators: [timestamp_type: :utc_datetime]` to generated config
+* Update `Dala.Audio` → `Dala.Media.Audio` in audio_screen template
+* Update `Dala.Camera` → `Dala.Media.Camera` in camera_screen template
+* Update `Dala.Haptic` → `Dala.Hardware.Haptic` in home_screen template
+* Add haptic feedback on theme switch in home_screen template
+* Update `Dala.Socket.push_screen/3` calls to always pass `%{}` params
+* Update `Dala.Storage.Storage.write/2` return match to `{:ok, _path}`
+* Update cookie env var to `<app>_DIST_COOKIE` pattern in app template
+* Update AGENTS.md with new module renames and API changes
+* Update `.tool-versions.eex` with dala version comment
+
+### Breaking Changes:
+
+* `Dala.Socket.push_screen/3` now requires 3 arguments (params no longer optional)
+* `Dala.Audio` module moved to `Dala.Media.Audio`
+* `Dala.Camera` module moved to `Dala.Media.Camera`
+* `Dala.Haptic` module moved to `Dala.Hardware.Haptic`
+
+## [v0.1.1]
+
 ### Breaking Changes:
 
 * Remove `Dala.Sigil` and `~dala` sigil from all screen templates — helpers now use `Dala.UI.*` function calls directly

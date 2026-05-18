@@ -33,17 +33,17 @@ defmodule <%= module_name %>.AudioScreen do
   end
 
   def handle_event(:play, _params, socket) do
-    socket = Dala.Audio.play(socket, @test_audio, volume: socket.assigns.volume)
+    socket = Dala.Media.Audio.play(socket, @test_audio, volume: socket.assigns.volume)
     {:noreply, Dala.Socket.assign(socket, status: "playing", status_text: "Status: playing")}
   end
 
   def handle_event(:stop, _params, socket) do
-    socket = Dala.Audio.stop_playback(socket)
+    socket = Dala.Media.Audio.stop_playback(socket)
     {:noreply, Dala.Socket.assign(socket, status: "stopped", status_text: "Status: stopped")}
   end
 
   def handle_event({:change, :volume, volume}, _params, socket) do
-    socket = Dala.Audio.set_volume(socket, volume)
+    socket = Dala.Media.Audio.set_volume(socket, volume)
     label = "App Volume: #{round(volume * 100)}%"
     {:noreply, Dala.Socket.assign(socket, volume: volume, volume_label: label)}
   end

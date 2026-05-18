@@ -7,6 +7,14 @@ defmodule <%= module_name %>.CameraScreen do
     {:ok, Dala.Socket.assign(socket, previewing: false, status: "requesting permission…", last_capture: nil)}
   end
 
+  def handle_info({:permission, :camera, :granted}, socket) do
+    {:noreply, Dala.Socket.assign(socket, status: "idle")}
+  end
+
+  def handle_info({:permission, :camera, :denied}, socket) do
+    {:noreply, Dala.Socket.assign(socket, status: "camera permission denied")}
+  end
+
   def render(assigns) do
     status_text = "Status: #{assigns.status}"
 
@@ -22,26 +30,18 @@ defmodule <%= module_name %>.CameraScreen do
     ])
   end
 
-  def handle_info({:permission, :camera, :granted}, socket) do
-    {:noreply, Dala.Socket.assign(socket, status: "idle")}
-  end
-
-  def handle_info({:permission, :camera, :denied}, socket) do
-    {:noreply, Dala.Socket.assign(socket, status: "camera permission denied")}
-  end
-
   def handle_event(:start_preview, _params, socket) do
-    socket = Dala.Camera.start_preview(socket, facing: :back)
+    socket = Dala.Media.Camera.start_preview(socket, facing: :back)
     {:noreply, Dala.Socket.assign(socket, previewing: true, status: "preview starting…")}
   end
 
   def handle_event(:stop_preview, _params, socket) do
-    socket = Dala.Camera.stop_preview(socket)
+    socket = Dala.Media.Camera.stop_preview(socket)
     {:noreply, Dala.Socket.assign(socket, previewing: false, status: "preview stopped")}
   end
 
   def handle_event(:capture_photo, _params, socket) do
-    socket = Dala.Camera.capture_photo(socket, quality: :high)
+    socket = Dala.Media.Camera.capture_photo(socket, quality: :high)
     {:noreply, Dala.Socket.assign(socket, status: "camera opening…")}
   end
 
@@ -76,7 +76,7 @@ defmodule <%= module_name %>.CameraScreen do
   end
 
   def terminate(_reason, socket) do
-    if socket.assigns.previewing, do: Dala.Camera.stop_preview(socket)
+    if socket.assigns.previewing, do: Dala.Media.Camera.stop_preview(socket)
     :ok
   end
 end

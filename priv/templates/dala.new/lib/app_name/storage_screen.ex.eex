@@ -28,7 +28,7 @@ defmodule <%= module_name %>.StorageScreen do
   def handle_event(:write, _params, socket) do
     path = Path.join(Dala.Storage.Storage.dir(:documents), "<%= app_name %>_test.txt")
     case Dala.Storage.Storage.write(path, "<%= display_name %> storage test\n#{DateTime.utc_now()}") do
-      {:ok, _}        -> {:noreply, Dala.Socket.assign(socket, status: "written: #{Path.basename(path)}")}
+      {:ok, _path}    -> {:noreply, Dala.Socket.assign(socket, status: "written: #{Path.basename(path)}")}
       {:error, posix} -> {:noreply, Dala.Socket.assign(socket, status: "write error: #{posix}")}
     end
   end

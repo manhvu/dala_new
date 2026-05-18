@@ -6,3 +6,7 @@ config :dala_dev,
 
   # Path to your Elixir lib dir (e.g. ~/.local/share/mise/installs/elixir/1.18.4-otp-28/lib).
   elixir_lib: <%= dala_exs_elixir_lib %>
+
+config :dala,
+  # Dala framework configuration.
+  # liveview_port: 4200  # Uncomment for LiveView projects

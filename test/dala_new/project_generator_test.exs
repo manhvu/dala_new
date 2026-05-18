@@ -921,7 +921,7 @@ defmodule DalaNew.ProjectGeneratorTest do
       content = File.read!(Path.join(dir, "lib/lv_test/dala_screen.ex"))
       assert content =~ "defmodule LvTest.DalaScreen"
       assert content =~ "use Dala.Spark.Dsl"
-      assert content =~ "Dala.LiveView.local_url"
+      assert content =~ "http://127.0.0.1:4200/"
     end
 
     @tag :integration

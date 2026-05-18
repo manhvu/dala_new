@@ -243,8 +243,8 @@ defmodule DalaNew.LiveViewPatcherTest do
       assert live_app_content() =~ "Application.get_env(:dala, :liveview_port, 4200)"
     end
 
-    test "starts Dala.ComponentRegistry" do
-      assert live_app_content() =~ "Dala.ComponentRegistry.start_link()"
+    test "starts Dala.Ui.NativeView.Registry" do
+      assert live_app_content() =~ "Dala.Ui.NativeView.Registry.start_link()"
     end
 
     test "embeds secret_key_base" do
@@ -295,10 +295,10 @@ defmodule DalaNew.LiveViewPatcherTest do
       assert content =~ "use Dala.Spark.Dsl"
     end
 
-    test "renders a webview with Dala.LiveView.local_url" do
+    test "renders a webview with local Phoenix URL" do
       content = LiveViewPatcher.dala_screen_content("MyApp")
       assert content =~ "webview"
-      assert content =~ "Dala.LiveView.local_url"
+      assert content =~ "http://127.0.0.1:4200/"
     end
   end
 
