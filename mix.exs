@@ -5,7 +5,7 @@
 defmodule DalaNew.MixProject do
   use Mix.Project
 
-  @version "0.2.0"
+  @version "0.2.1"
 
   @description """
   Project generator for the Dala mobile framework.
@@ -58,13 +58,13 @@ defmodule DalaNew.MixProject do
   defp docs do
     [
       main: "readme",
+      logo: "assets/logo/Dala_logo_512.png",
       source_ref: "v#{@version}",
       source_url: "https://github.com/manhvu/dala_new",
       logo: nil,
       extra_section: "GUIDES",
       extras: [
-        {"README.md", title: "Home"},
-        "CHANGELOG.md"
+        {"README.md", title: "Home"}
       ],
       groups_for_modules: [
         "Mix Tasks": [~r"Mix\.Tasks\..*"],
@@ -81,10 +81,9 @@ defmodule DalaNew.MixProject do
       ],
       licenses: ["MIT", "MPL-2.0"],
       files: ~w(lib .formatter.exs mix.exs README* LICENSE*
-      CHANGELOG* AGENTS.md priv),
+       AGENTS.md priv),
       links: %{
         "GitHub" => "https://github.com/manhvu/dala_new",
-        "Changelog" => "https://github.com/manhvu/dala/blob/main/dala_new/CHANGELOG.md",
         "HexDocs" => "https://hexdocs.pm/dala_new"
       }
     ]

@@ -341,7 +341,7 @@ defmodule DalaNew.ProjectGeneratorTest do
       assert content =~ "local.properties"
       assert content =~ "dala.otp_release"
       refute content =~ "dala.otp_build"
-      refute content =~ "MOB_OTP_SRC"
+      refute content =~ "DALA_OTP_SRC"
     end
 
     test "assigns jni_package escapes underscores correctly" do
@@ -388,7 +388,7 @@ defmodule DalaNew.ProjectGeneratorTest do
       assert content =~ "DALA_DIR"
       assert content =~ "DALA_ELIXIR_LIB"
       assert content =~ "DALA_IOS_OTP_ROOT"
-      refute content =~ "MOB_OTP_SRC"
+      refute content =~ "DALA_OTP_SRC"
     end
 
     test "generates dala.exs config template", %{tmp: tmp} do
