@@ -199,7 +199,7 @@ defmodule DalaNew.LiveViewPatcher do
       use Dala.App
 
       def start do
-        Dala.NativeLogger.install()
+        Dala.Platform.NativeLogger.install()
 
         # On-device, Mix config files are not loaded — set Phoenix endpoint
         # config explicitly before starting applications so the endpoint knows

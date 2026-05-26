@@ -11,7 +11,7 @@ defmodule <%= module_name %>.ListScreen do
       socket
       |> Dala.Socket.assign(:rounds,  load_rounds())
       |> Dala.Socket.assign(:pending, nil)
-      |> Dala.List.put_renderer(:history, &history_row/1)
+      |> Dala.Ui.List.put_renderer(:history, &history_row/1)
     {:ok, socket}
   end
 

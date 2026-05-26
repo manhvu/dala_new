@@ -81,24 +81,28 @@ To publish a new version: bump `version:` in `mix.exs`, then
 - **Module name changes to track.** The dala repo has renamed several modules:
   `Dala.Ui.Socket` → `Dala.Socket`, `Dala.Dist` → `Dala.Connectivity.Dist`,
   `Dala.State` → `Dala.Platform.State`, `Dala.UI.*` → `Dala.Ui.Widgets.*`,
-  `Dala.Ui.List` → `Dala.List`, `Dala.Storage.*` → `Dala.Storage.Storage.*`,
+  `Dala.Ui.List` → `Dala.Ui.List` (NOT `Dala.List`), `Dala.Storage.*` → `Dala.Storage.Storage.*`,
   `Dala.WebView` → `Dala.Ui.Embedded.Webview`, `Dala.Audio` → `Dala.Media.Audio`,
   `Dala.Camera` → `Dala.Media.Camera`, `Dala.Haptic` → `Dala.Hardware.Haptic`,
   `Dala.Location` → `Dala.Platform.Location`, `Dala.Motion` → `Dala.Ui.Sensor.Motion`,
   `Dala.Notify` → `Dala.Platform.Notify`, `Dala.Biometric` → `Dala.Hardware.Biometric`,
   `Dala.Scanner` → `Dala.Hardware.Scanner`, `Dala.Clipboard` → `Dala.Platform.Clipboard`,
   `Dala.Share` → `Dala.Platform.Share`, `Dala.Photos` → `Dala.Media.Photos`,
-  `Dala.Files` → `Dala.Storage.Files`. Always verify against the
+  `Dala.Files` → `Dala.Storage.Files`, `Dala.NativeLogger` → `Dala.Platform.NativeLogger`,
+  `Dala.ComponentRegistry` → `Dala.Ui.NativeView.Registry`. Always verify against the
   current dala repo before editing templates.
 
-- **DSL syntax: `screen name: :atom do`** (keyword arg, not `screen do name :atom`).
-  Container props use keyword args (`gap :space_sm`), not function calls (`gap(:space_sm)`).
-  Attributes are wrapped in `attributes do ... end` blocks.
+- **DSL syntax: `dala do` wraps `attributes do` and `screen name: :atom do`**.
+  The top-level block is `dala do ... end`, which contains `attributes do ... end`
+  and `screen name: :atom do ... end`. Container props use keyword args (`gap :space_sm`),
+  not function calls (`gap(:space_sm)`). Simple screens can use `screen name: :atom do ... end`
+  directly without the `dala do` wrapper.
 
-- **`Dala.Socket.push_screen/3` now requires 3 args** (socket, dest, params) — the
-  params map is no longer optional with a default. Always pass `%{}` if no params
-  are needed. New navigation functions: `pop_to/2`, `pop_to_root/1`, `reset_to/3`.
+- **`Dala.Socket.push_screen/3`** takes `(socket, dest, params \\ %{})` — params is optional.
+  New navigation functions: `pop_to/2`, `pop_to_root/1`, `reset_to/3`.
   `Dala.Socket.changed?/2` and `clear_changed/1` track assign changes.
+  `Dala.Permissions.request/2` takes `(pid, permission)` not `(socket, permission)`.
+  Permission results arrive as `{:permission_result, permission, result}` (not `{:permission, ...}`).
 
 - **`Dala.Ui.Widgets` has many new components**: `icon/1`, `toggle/1`, `tab_bar/1`,
   `video/1`, `switch/1`, `activity_indicator/1`, `modal/2`, `refresh_control/1`,

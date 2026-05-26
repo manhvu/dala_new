@@ -217,8 +217,8 @@ defmodule DalaNew.LiveViewPatcherTest do
       assert live_app_content() =~ "MyApp.DalaScreen"
     end
 
-    test "installs Dala.NativeLogger" do
-      assert live_app_content() =~ "Dala.NativeLogger.install()"
+    test "installs Dala.Platform.NativeLogger" do
+      assert live_app_content() =~ "Dala.Platform.NativeLogger.install()"
     end
 
     test "starts Erlang distribution" do

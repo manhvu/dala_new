@@ -20,7 +20,7 @@ defmodule <%= module_name %>.WebViewScreen do
   end
 
   def handle_info({:webview, :message, data}, socket) do
-    socket = Dala.Ui.Embedded.Webview.post_message(socket, %{"echo" => data})
+    Dala.Ui.Embedded.Webview.post_message(socket, %{"echo" => data})
     {:noreply, Dala.Socket.assign(socket, last_msg: data)}
   end
 

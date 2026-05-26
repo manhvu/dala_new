@@ -3,15 +3,15 @@ defmodule <%= module_name %>.CameraScreen do
   use Dala.Screen
 
   def mount(_params, _session, socket) do
-    socket = Dala.Permissions.request(socket, :camera)
+    Dala.Permissions.request(self(), :camera)
     {:ok, Dala.Socket.assign(socket, previewing: false, status: "requesting permission…", last_capture: nil)}
   end
 
-  def handle_info({:permission, :camera, :granted}, socket) do
+  def handle_info({:permission_result, :camera, :granted}, socket) do
     {:noreply, Dala.Socket.assign(socket, status: "idle")}
   end
 
-  def handle_info({:permission, :camera, :denied}, socket) do
+  def handle_info({:permission_result, :camera, :denied}, socket) do
     {:noreply, Dala.Socket.assign(socket, status: "camera permission denied")}
   end
 
