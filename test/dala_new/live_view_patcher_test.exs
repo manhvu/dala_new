@@ -222,7 +222,7 @@ defmodule DalaNew.LiveViewPatcherTest do
     end
 
     test "starts Erlang distribution" do
-      assert live_app_content() =~ "Dala.Connectivity.Dist.ensure_started"
+      assert live_app_content() =~ "Dala.Dist.ensure_started"
     end
 
     test "sets Application.put_env for :dala liveview_port" do

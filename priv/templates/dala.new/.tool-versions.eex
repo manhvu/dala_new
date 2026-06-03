@@ -10,4 +10,4 @@ elixir 1.19.5-otp-28
 java temurin-17.0.18
 
 # Dala framework version (update to match the dala dep in mix.exs)
-dala 0.6.1
+dala 0.7.2

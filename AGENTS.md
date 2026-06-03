@@ -92,6 +92,20 @@ To publish a new version: bump `version:` in `mix.exs`, then
   `Dala.ComponentRegistry` → `Dala.Ui.NativeView.Registry`. Always verify against the
   current dala repo before editing templates.
 
+  **New in dala v0.7.2:** `Dala.Dist` is now a convenience shorthand that delegates
+  to `Dala.Connectivity.Dist` (use `Dala.Dist.cookie_from_env/2` and
+  `Dala.Dist.ensure_started/1` in templates). `Dala.App` now delegates to
+  `Dala.App.App` and `Dala.Screen` delegates to `Dala.Screen.Screen`. The
+  `use Dala.App` and `use Dala.Screen` macros remain the correct API.
+  `Dala.Platform.Native` is the Rustler NIF module (replaces old `dala_nif.erl`).
+  New modules: `Dala.Gpu.Compute`, `Dala.ML`, `Dala.ML.Burn`, `Dala.ML.CoreML`,
+  `Dala.ML.ONNX`, `Dala.Hardware.Bluetooth`, `Dala.Connectivity.Wifi`,
+  `Dala.Wakelock`, `Dala.Platform.Settings`, `Dala.Platform.Linking`,
+  `Dala.Platform.Background`, `Dala.Storage.Blob`, `Dala.Ui.Feedback.Alert`,
+  `Dala.Ui.Scan`, `Dala.Hardware.NFC`, `Dala.Theme.AdaptiveWatcher`,
+  `Dala.Device.{Ios,Android,Device}`, `Dala.Screen.Manager`, `Dala.Node`,
+  `Dala.Ui.Diff`, `Dala.Renderer` (binary protocol), `Dala.Preview` (dev only).
+
 - **DSL syntax: `dala do` wraps `attributes do` and `screen name: :atom do`**.
   The top-level block is `dala do ... end`, which contains `attributes do ... end`
   and `screen name: :atom do ... end`. Container props use keyword args (`gap :space_sm`),

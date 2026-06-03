@@ -245,8 +245,8 @@ defmodule DalaNew.LiveViewPatcher do
         {:ok, _pid} = Dala.Screen.start_root(#{module_name}.DalaScreen)
 
         # Start Erlang distribution so `mix dala.connect` can attach.
-        cookie = Dala.Connectivity.Dist.cookie_from_env("#{app_name}_DIST_COOKIE", "#{app_name}")
-        Dala.Connectivity.Dist.ensure_started(node: :"#{app_name}_android@127.0.0.1", cookie: cookie)
+        cookie = Dala.Dist.cookie_from_env("#{app_name}_DIST_COOKIE", "#{app_name}")
+        Dala.Dist.ensure_started(node: :"#{app_name}_android@127.0.0.1", cookie: cookie)
       end
 
       defp migrations_dir do
