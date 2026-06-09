@@ -10,3 +10,4 @@ config :dala_dev,
 config :dala,
   # Dala framework configuration.
   # liveview_port: 4200  # Uncomment for LiveView projects
+  # designer_port: 4200  # Uncomment for Dala.Designer (dev only)

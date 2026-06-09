@@ -5,7 +5,7 @@
 defmodule DalaNew.MixProject do
   use Mix.Project
 
-  @version "0.3.1"
+  @version "0.3.2"
 
   @description """
   Project generator for the Dala mobile framework.

@@ -35,6 +35,14 @@ defmodule <%= module_name %>.HomeScreen do
           Dala.Ui.Widgets.button(text: "Citrus", background: :surface, text_color: :on_surface, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_citrus),
           Dala.Ui.Widgets.spacer(size: 8),
           Dala.Ui.Widgets.button(text: "Birch", background: :surface, text_color: :on_surface, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_birch)
+        ]),
+        Dala.Ui.Widgets.spacer(size: 8),
+        Dala.Ui.Widgets.row([fill_width: true], [
+          Dala.Ui.Widgets.button(text: "Dark", background: :surface, text_color: :on_surface, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_dark),
+          Dala.Ui.Widgets.spacer(size: 8),
+          Dala.Ui.Widgets.button(text: "Light", background: :surface, text_color: :on_surface, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_light),
+          Dala.Ui.Widgets.spacer(size: 8),
+          Dala.Ui.Widgets.button(text: "Accent", background: :surface, text_color: :on_surface, text_size: :sm, padding: :space_sm, fill_width: true, on_tap: :theme_accent)
         ])
       ])
     ])
@@ -87,5 +95,25 @@ defmodule <%= module_name %>.HomeScreen do
     Dala.Platform.State.put(:theme, :birch)
     Dala.Hardware.Haptic.trigger(socket, :light)
     {:noreply, Dala.Socket.assign(socket, :theme, :birch)}
+  end
+
+  def handle_event(:theme_dark, _params, socket) do
+    Dala.Theme.set(Dala.Theme.Dark)
+    Dala.Platform.State.put(:theme, :dark)
+    Dala.Hardware.Haptic.trigger(socket, :light)
+    {:noreply, Dala.Socket.assign(socket, :theme, :dark)}
+  end
+
+  def handle_event(:theme_light, _params, socket) do
+    Dala.Theme.set(Dala.Theme.Light)
+    Dala.Platform.State.put(:theme, :light)
+    Dala.Hardware.Haptic.trigger(socket, :light)
+    {:noreply, Dala.Socket.assign(socket, :theme, :light)}
+  end
+
+  def handle_event(:theme_accent, _params, socket) do
+    Dala.Theme.set_accent(:violet_500)
+    Dala.Hardware.Haptic.trigger(socket, :light)
+    {:noreply, socket}
   end
 end

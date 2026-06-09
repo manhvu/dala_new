@@ -92,25 +92,39 @@ To publish a new version: bump `version:` in `mix.exs`, then
   `Dala.ComponentRegistry` → `Dala.Ui.NativeView.Registry`. Always verify against the
   current dala repo before editing templates.
 
-  **New in dala v0.7.2:** `Dala.Dist` is now a convenience shorthand that delegates
+  **New in dala v0.8.0:** `Dala.Dist` is now a convenience shorthand that delegates
   to `Dala.Connectivity.Dist` (use `Dala.Dist.cookie_from_env/2` and
   `Dala.Dist.ensure_started/1` in templates). `Dala.App` now delegates to
   `Dala.App.App` and `Dala.Screen` delegates to `Dala.Screen.Screen`. The
   `use Dala.App` and `use Dala.Screen` macros remain the correct API.
   `Dala.Platform.Native` is the Rustler NIF module (replaces old `dala_nif.erl`).
+  `Dala.Preview` has been replaced by `Dala.Designer` (dev only) — drag-and-drop
+  UI designer and preview tool.
   New modules: `Dala.Gpu.Compute`, `Dala.ML`, `Dala.ML.Burn`, `Dala.ML.CoreML`,
-  `Dala.ML.ONNX`, `Dala.Hardware.Bluetooth`, `Dala.Connectivity.Wifi`,
-  `Dala.Wakelock`, `Dala.Platform.Settings`, `Dala.Platform.Linking`,
-  `Dala.Platform.Background`, `Dala.Storage.Blob`, `Dala.Ui.Feedback.Alert`,
-  `Dala.Ui.Scan`, `Dala.Hardware.NFC`, `Dala.Theme.AdaptiveWatcher`,
+  `Dala.ML.ONNX`, `Dala.ML.Gpu.Inference`, `Dala.Hardware.Bluetooth`,
+  `Dala.Connectivity.Wifi`, `Dala.Wakelock`, `Dala.Platform.Settings`,
+  `Dala.Platform.Linking`, `Dala.Platform.Background`, `Dala.Storage.Blob`,
+  `Dala.Ui.Feedback.Alert`, `Dala.Ui.Scan`, `Dala.Hardware.NFC`,
+  `Dala.Theme.AdaptiveWatcher`, `Dala.Theme.Adaptive.Custom`,
   `Dala.Device.{Ios,Android,Device}`, `Dala.Screen.Manager`, `Dala.Node`,
-  `Dala.Ui.Diff`, `Dala.Renderer` (binary protocol), `Dala.Preview` (dev only).
+  `Dala.Ui.Diff`, `Dala.Renderer` (binary protocol), `Dala.Designer` (dev only),
+  `Dala.Event`, `Dala.Event.Bridge`, `Dala.Event.Throttle`, `Dala.Event.Trace`,
+  `Dala.PubSub`, `Dala.List`, `Dala.Ui.NativeView`, `Dala.Ui.NativeView.Registry`,
+  `Dala.Ui.NativeView.Server`, `Dala.Nav.Registry`, `Dala.Media.Gpu.Processor`.
+  `Dala.verify_dsl/1` validates DSL definitions of a screen module.
 
 - **DSL syntax: `dala do` wraps `attributes do` and `screen name: :atom do`**.
   The top-level block is `dala do ... end`, which contains `attributes do ... end`
   and `screen name: :atom do ... end`. Container props use keyword args (`gap :space_sm`),
   not function calls (`gap(:space_sm)`). Simple screens can use `screen name: :atom do ... end`
   directly without the `dala do` wrapper.
+
+  **New in v0.8:** DSL supports conditional rendering (`if @loading do ... else ... end`,
+  `unless @show do ... end`), list rendering (`for item <- @items do ... end`),
+  text variants (`variant: :heading` for presets like `:display`, `:heading`, `:title`,
+  `:body`, `:caption`, `:label`, `:overline`), and text selectable (`selectable: true`).
+  All components now accept `:accessibility_label`, `:accessibility_hint`,
+  `:accessibility_role`, `:accessibility_value`, `:accessibility_hidden` props.
 
 - **`Dala.Socket.push_screen/3`** takes `(socket, dest, params \\ %{})` — params is optional.
   New navigation functions: `pop_to/2`, `pop_to_root/1`, `reset_to/3`.
@@ -124,7 +138,8 @@ To publish a new version: bump `version:` in `mix.exs`, then
   `badge/2`, `chip/1`, `snackbar/1`, `bottom_sheet/2`, `tooltip/2`, `fab/1`,
   `icon_button/1`, `segmented_button/1`, `app_bar/1`, `nav_bar/1`, `nav_drawer/1`,
   `nav_rail/1`, `menu/1`, `date_picker/1`, `time_picker/1`, `search_bar/1`,
-  `carousel/1`, `native_view/2`.
+  `carousel/1`, `native_view/2`, `empty_state/1`, `avatar/1`, `stepper/1`,
+  `skeleton/1`, `grid/2`.
 
 - **`Dala.Test` has expanded significantly** with native UI inspection (`view_tree/1`,
   `find_view/2`, `ui_tree/1`), accessibility actions (`ax_action/3`, `ax_action_at_xy/4`),
