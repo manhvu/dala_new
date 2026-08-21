@@ -921,7 +921,11 @@ defmodule DalaNew.ProjectGeneratorTest do
       content = File.read!(Path.join(dir, "lib/lv_test/dala_screen.ex"))
       assert content =~ "defmodule LvTest.DalaScreen"
       assert content =~ "use Dala.Spark.Dsl"
-      assert content =~ "http://127.0.0.1:4200/"
+
+      # Port is derived from the bundle id ("com.example.lv_test" → 4269) and
+      # must match the port patched into config/dev.exs.
+      port = ProjectGenerator.liveview_port("com.example.lv_test")
+      assert content =~ "http://127.0.0.1:#{port}/"
     end
 
     @tag :integration
@@ -1128,30 +1132,31 @@ defmodule DalaNew.ProjectGeneratorTest do
     end
 
     @tag :integration
-    test "config ports are 4200 (host endpoint must match on-device dala_app.ex)",
+    test "config ports use the bundle-id-derived liveview_port (host endpoint must match on-device dala_app.ex)",
          %{tmp: tmp} do
       # phx.new defaults dev=4000, test=4002, runtime PORT=4000 — but Dala's
-      # dala_app.ex pins the on-device endpoint to 4200, and another developer
-      # running `mix phx.server` on 4000 would collide with the generated
-      # project's setup. Pin all three files so the ports stay aligned.
+      # dala_app.ex pins the on-device endpoint to the bundle-id-derived port
+      # (see liveview_port/1), and two installed apps must not collide.
+      # Pin all three files so the ports stay aligned.
       {:ok, dir} = ProjectGenerator.liveview_generate("lv_test", tmp)
+      port = ProjectGenerator.liveview_port("com.example.lv_test")
 
       dev = File.read!(Path.join(dir, "config/dev.exs"))
-      assert dev =~ "port: 4200"
+      assert dev =~ "port: #{port}"
 
-      refute dev =~ "port: 4000",
+      refute dev =~ "port: 4000,",
              "config/dev.exs still has Phoenix's default 4000 — patch_config_ports regressed"
 
       test_cfg = File.read!(Path.join(dir, "config/test.exs"))
-      assert test_cfg =~ "port: 4202"
+      assert test_cfg =~ "port: #{port + 2}"
 
       refute test_cfg =~ "port: 4002",
              "config/test.exs still has Phoenix's default 4002"
 
       runtime = File.read!(Path.join(dir, "config/runtime.exs"))
-      assert runtime =~ "\"PORT\", \"4200\""
+      assert runtime =~ "System.get_env(\"PORT\") || \"#{port}\""
 
-      refute runtime =~ "\"PORT\", \"4000\"",
+      refute runtime =~ "|| \"4000\"",
              "config/runtime.exs PORT env-var fallback still 4000"
     end
 
@@ -1201,6 +1206,96 @@ defmodule DalaNew.ProjectGeneratorTest do
       assert File.exists?(Path.join(dir, "mix.exs"))
       assert File.exists?(Path.join(dir, "lib/test_ios2/app.ex"))
       assert File.exists?(Path.join(dir, "lib/test_ios2/home_screen.ex"))
+    end
+  end
+
+  # ── failure paths ────────────────────────────────────────────────────────────
+
+  describe "generate/3 failure paths" do
+    setup do
+      tmp = Path.join(System.tmp_dir!(), "dala_new_fail_#{System.unique_integer([:positive])}")
+      File.mkdir_p!(tmp)
+      on_exit(fn -> File.rm_rf!(tmp) end)
+      {:ok, tmp: tmp}
+    end
+
+    test "cleans up the partial directory when template rendering raises", %{tmp: tmp} do
+      import Mimic
+      copy(EEx)
+
+      expect(EEx, :eval_file, 1, fn _path, _assigns -> raise "simulated template boom" end)
+
+      assert {:error, msg} = ProjectGenerator.generate("poison_app", tmp)
+      assert msg =~ "simulated template boom"
+
+      # The partial directory must have been removed so a retry works.
+      refute File.dir?(Path.join(tmp, "poison_app"))
+    end
+
+    test "--local returns an error when the dala repo cannot be located", %{tmp: tmp} do
+      prev = System.get_env("DALA_DIR")
+      System.delete_env("DALA_DIR")
+
+      try do
+        # Run from a cwd with no ./dala or ../dala sibling. The Mix.raise from
+        # resolve_local_path is caught by generate/3's rescue and converted to
+        # an error tuple (with the directory cleaned up).
+        deep = Path.join(tmp, "deep/nested/cwd")
+        File.mkdir_p!(deep)
+        prev_cwd = File.cwd!()
+        File.cd!(deep)
+
+        try do
+          assert {:error, msg} = ProjectGenerator.generate("local_app", ".", local: true)
+          assert msg =~ "Could not find local dala"
+          refute File.dir?(Path.join(deep, "local_app"))
+        after
+          File.cd!(prev_cwd)
+        end
+      after
+        if prev, do: System.put_env("DALA_DIR", prev), else: System.delete_env("DALA_DIR")
+      end
+    end
+
+    test "--local resolves DALA_DIR env var into path deps", %{tmp: tmp} do
+      fake_dala = Path.join(tmp, "my_dala")
+      File.mkdir_p!(fake_dala)
+
+      prev = System.get_env("DALA_DIR")
+      System.put_env("DALA_DIR", fake_dala)
+
+      try do
+        {:ok, dir} = ProjectGenerator.generate("local_env_app", tmp, local: true)
+        content = File.read!(Path.join(dir, "mix.exs"))
+        assert content =~ "path:"
+        assert content =~ fake_dala
+      after
+        if prev, do: System.put_env("DALA_DIR", prev), else: System.delete_env("DALA_DIR")
+      end
+    end
+
+    test "--local falls back to a ./dala sibling when DALA_DIR is unset", %{tmp: tmp} do
+      prev = System.get_env("DALA_DIR")
+      System.delete_env("DALA_DIR")
+
+      try do
+        cwd = Path.join(tmp, "proj")
+        File.mkdir_p!(Path.join(cwd, "dala"))
+        File.mkdir_p!(Path.join(cwd, "dala_dev"))
+        prev_cwd = File.cwd!()
+        File.cd!(cwd)
+
+        try do
+          {:ok, dir} = ProjectGenerator.generate("sibling_app", ".", local: true)
+          content = File.read!(Path.join(dir, "mix.exs"))
+          # The ./dala sibling was resolved into an absolute path: dep.
+          assert content =~ ~s(path: "#{Path.expand("./dala")}")
+        after
+          File.cd!(prev_cwd)
+        end
+      after
+        if prev, do: System.put_env("DALA_DIR", prev), else: System.delete_env("DALA_DIR")
+      end
     end
   end
 end

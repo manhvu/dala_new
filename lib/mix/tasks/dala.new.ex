@@ -77,7 +77,7 @@ defmodule Mix.Tasks.Dala.New do
 
       APP_NAME/
         lib/APP_NAME/dala_screen.ex      # Dala.Screen wrapping the Phoenix WebView
-        dala.exs                          # Dala config with liveview_port: 4000
+        dala.exs                          # Dala config with the derived liveview_port
         android/                         # same Android boilerplate as native mode
         ios/                             # same iOS boilerplate as native mode
 
@@ -124,12 +124,30 @@ defmodule Mix.Tasks.Dala.New do
   defp parse_app_name!([name | _]), do: validate_app_name!(name)
   defp parse_app_name!([]), do: Mix.raise("Usage: mix dala.new APP_NAME")
 
-  defp validate_app_name!(name) do
-    unless valid_app_name?(name) do
-      Mix.raise("App name must be lowercase letters, digits, and underscores only (e.g. my_app).")
-    end
+  # Words that collide with Elixir/Erlang special forms or common stdlib
+  # module names when camelized (e.g. `Case` would shadow nothing but
+  # `Elixir`/`Kernel` variants break alias resolution).
+  @reserved_words ~w(end case cond if unless try catch rescue after else do fn quote unquote import require alias use when and or not true false nil)
 
-    name
+  defp validate_app_name!(name) do
+    cond do
+      not valid_app_name?(name) ->
+        Mix.raise(
+          "App name must be lowercase letters, digits, and underscores only (e.g. my_app)."
+        )
+
+      name in @reserved_words ->
+        Mix.raise("App name `#{name}` is a reserved word and cannot be used as an app name.")
+
+      String.contains?(name, "__") or String.ends_with?(name, "_") ->
+        Mix.raise(
+          "App name `#{name}` has consecutive or trailing underscores — this produces " <>
+            "broken module names (Macro.camelize) and JNI symbols. Use single underscores."
+        )
+
+      true ->
+        name
+    end
   end
 
   defp parse_gen_opts(opts) do
@@ -147,13 +165,15 @@ defmodule Mix.Tasks.Dala.New do
   end
 
   # Resolves the four platform-related flags into {no_ios?, no_android?}.
-  # Positive flags (--ios, --android) and negative flags (--no-ios, --no-android)
-  # are accepted; --ios is sugar for --no-android and vice versa.
+  # OptionParser's strict: [android: :boolean] parses `--no-android` as
+  # `android: false` (negation), so a false value means the *negative* flag
+  # was passed. `--no-ios`/`--no-android` (explicit keys) and `--ios`/
+  # `--android` (sugar for the inverse) are all accepted.
   defp resolve_platforms!(opts) do
     ios? = opts[:ios] == true
     android? = opts[:android] == true
-    no_ios? = opts[:no_ios] == true or android?
-    no_android? = opts[:no_android] == true or ios?
+    no_ios? = opts[:no_ios] == true or opts[:ios] == false or android?
+    no_android? = opts[:no_android] == true or opts[:android] == false or ios?
 
     if no_ios? and no_android? do
       Mix.raise(
@@ -344,8 +364,8 @@ defmodule Mix.Tasks.Dala.New do
 
         mix phx.server
 
-       Open http://localhost:4000 in your browser to confirm it loads, then
-       stop the server (Ctrl-C).
+       Open http://localhost:<liveview_port from dala.exs> in your browser to
+       confirm it loads, then stop the server (Ctrl-C).
 
     6. iOS only — if you're targeting a physical iPhone, register the bundle
        ID with Apple and download a provisioning profile (one-time setup;
@@ -357,7 +377,8 @@ defmodule Mix.Tasks.Dala.New do
 
         mix dala.deploy --native
 
-    The Dala WebView will load your Phoenix app at http://127.0.0.1:4000/.
+    The Dala WebView will load your Phoenix app at
+    http://127.0.0.1:<liveview_port from dala.exs>/.
     Verify `window.dala.send` in browser devtools routes through `pushEvent`
     (not `postMessage`) to confirm the LiveView bridge is active.
 

@@ -9,5 +9,5 @@ config :dala_dev,
 
 config :dala,
   # Dala framework configuration.
-  # liveview_port: 4200  # Uncomment for LiveView projects
+  # liveview_port: 4200  # LiveView projects: derived from bundle id at generation time
   # designer_port: 4200  # Uncomment for Dala.Designer (dev only)

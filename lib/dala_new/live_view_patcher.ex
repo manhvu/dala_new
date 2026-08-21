@@ -113,8 +113,10 @@ defmodule DalaNew.LiveViewPatcher do
 
   @doc """
   Generates the DalaScreen source file content for the given module name.
+
+  `port` is the app's derived LiveView port (see `DalaNew.ProjectGenerator.liveview_port/1`).
   """
-  def dala_screen_content(module_name) do
+  def dala_screen_content(module_name, port \\ 4200) do
     """
     defmodule #{module_name}.DalaScreen do
       @moduledoc ~S'''
@@ -135,7 +137,7 @@ defmodule DalaNew.LiveViewPatcher do
 
       dala do
         screen name: :dala_screen do
-          webview "http://127.0.0.1:4200/", show_url: false
+          webview "http://127.0.0.1:#{port}/", show_url: false
         end
       end
     end
@@ -144,8 +146,13 @@ defmodule DalaNew.LiveViewPatcher do
 
   @doc """
   Generates dala.exs config content for a LiveView project.
+
+  `port` is the app's derived LiveView port (see `DalaNew.ProjectGenerator.liveview_port/1`).
   """
-  def dala_exs_content(dala_exs_dala_dir, dala_exs_elixir_lib) do
+  def dala_exs_content(dala_exs_dala_dir, dala_exs_elixir_lib, port \\ 4200) do
+    secret_key_base = generate_secret_key_base()
+    signing_salt = generate_signing_salt()
+
     """
     # dala.exs — Dala build environment configuration.
     # Set these paths for your machine. Not committed to version control.
@@ -162,8 +169,23 @@ defmodule DalaNew.LiveViewPatcher do
       # Path to your Elixir lib dir (e.g. ~/.local/share/mise/installs/elixir/1.18.4-otp-28/lib).
       elixir_lib: #{dala_exs_elixir_lib}
 
-    config :dala, liveview_port: 4200
+    config :dala,
+      # Derived from the bundle id at generation time so installed apps don't collide.
+      liveview_port: #{port},
+
+      # Endpoint secrets for the on-device Phoenix endpoint. dala.exs is
+      # gitignored — keep it that way so these never reach version control.
+      secret_key_base: "#{secret_key_base}",
+      signing_salt: "#{signing_salt}"
     """
+  end
+
+  defp generate_secret_key_base do
+    :crypto.strong_rand_bytes(48) |> Base.encode64(padding: false)
+  end
+
+  defp generate_signing_salt do
+    :crypto.strong_rand_bytes(8) |> Base.encode64(padding: false)
   end
 
   @doc """
@@ -176,12 +198,13 @@ defmodule DalaNew.LiveViewPatcher do
   Unlike native Dala apps, this does NOT `use Dala.App` — Phoenix owns the
   supervision tree. Dala is wired in at the BEAM entry level only.
 
-  `secret_key_base` and `signing_salt` are embedded directly because Mix config
-  files (`config/*.exs`) are not loaded on-device — `Application.put_env/3` is
-  the only way to configure the endpoint before `ensure_all_started/1` runs.
-  Port 4200 avoids conflicts with a host `mix phx.server` on 4000.
+  `secret_key_base` and `signing_salt` are read from `Application.get_env` at
+  runtime because Mix config files (`config/*.exs`) are not loaded on-device —
+  the generator writes them into `dala.exs` (gitignored) so the secret is never
+  committed to the app repo. `port` is the app's derived LiveView port (see
+  `DalaNew.ProjectGenerator.liveview_port/1`) so two installed apps don't collide.
   """
-  def dala_live_app_content(module_name, app_name, secret_key_base, signing_salt) do
+  def dala_live_app_content(module_name, app_name, port \\ 4200) do
     """
     defmodule #{module_name}.DalaApp do
       @moduledoc ~S'''
@@ -206,19 +229,25 @@ defmodule DalaNew.LiveViewPatcher do
         # its port, adapter, and secret key base. Watchers and code reload
         # are omitted (no dev tools on-device).
         #
-        # Port 4200 avoids conflicts with a host `mix phx.server` on 4000
-        # (iOS simulator shares the host loopback at 127.0.0.1).
-        liveview_port = Application.get_env(:dala, :liveview_port, 4200)
+        # The port is derived from the bundle id at generation time (see
+        # dala.exs liveview_port) so installed apps don't collide.
+        liveview_port = Application.get_env(:dala, :liveview_port, #{port})
         Application.put_env(:dala, :liveview_port, liveview_port)
+
+        # secret_key_base / signing_salt live in dala.exs (gitignored) so the
+        # secret is never committed to the app repo.
+        secret_key_base = Application.get_env(:dala, :secret_key_base)
+        signing_salt = Application.get_env(:dala, :signing_salt)
+
         Application.put_env(:#{app_name}, #{module_name}Web.Endpoint,
           adapter: Bandit.PhoenixAdapter,
           http: [ip: {127, 0, 0, 1}, port: liveview_port],
           check_origin: false,
           debug_errors: true,
           server: true,
-          secret_key_base: "#{secret_key_base}",
+          secret_key_base: secret_key_base,
           pubsub_server: #{module_name}.PubSub,
-          live_view: [signing_salt: "#{signing_salt}"]
+          live_view: [signing_salt: signing_salt]
         )
 
         # ecto_sqlite3 must be started before #{app_name} so its NIF is loaded
@@ -351,7 +380,7 @@ defmodule DalaNew.LiveViewPatcher do
 
       @seeds [
         %{title: "Welcome to Dala", body: "LiveView is running on-device inside a WKWebView. The full Phoenix stack — Bandit, Plug, LiveView WebSocket — runs entirely on the device.\\n\\nTry editing this note!"},
-        %{title: "How it works", body: "The app boots the BEAM, starts the Phoenix endpoint on 127.0.0.1:4200, then loads http://127.0.0.1:4200/ in a native WebView.\\n\\nLiveView handles all UI updates over a WebSocket — no page reloads needed."},
+        %{title: "How it works", body: "The app boots the BEAM, starts the Phoenix endpoint on 127.0.0.1 (port set in dala.exs), then loads it in a native WebView.\\n\\nLiveView handles all UI updates over a WebSocket — no page reloads needed."},
         %{title: "Things to try", body: "• Create a new note with the + button\\n• Edit any note — changes persist to SQLite\\n• Delete notes by tapping the × button\\n• Check out the About tab"},
       ]
 

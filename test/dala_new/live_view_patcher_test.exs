@@ -195,14 +195,11 @@ defmodule DalaNew.LiveViewPatcherTest do
     end
   end
 
-  # ── dala_live_app_content/4 ────────────────────────────────────────────────────
+  # ── dala_live_app_content/3 ────────────────────────────────────────────────
 
-  describe "dala_live_app_content/4" do
-    @secret "testSecretKeyBase1234567890abcdefghijklmnopqrstuvwxyz"
-    @salt "testSalt"
-
+  describe "dala_live_app_content/3" do
     defp live_app_content,
-      do: LiveViewPatcher.dala_live_app_content("MyApp", "my_app", @secret, @salt)
+      do: LiveViewPatcher.dala_live_app_content("MyApp", "my_app")
 
     test "contains correct module name" do
       assert live_app_content() =~ "defmodule MyApp.DalaApp"
@@ -247,12 +244,13 @@ defmodule DalaNew.LiveViewPatcherTest do
       assert live_app_content() =~ "Dala.Ui.NativeView.Registry.start_link()"
     end
 
-    test "embeds secret_key_base" do
-      assert live_app_content() =~ "secret_key_base: \"#{@secret}\""
+    test "reads secret_key_base from Application env (kept out of committed source)" do
+      assert live_app_content() =~
+               "secret_key_base = Application.get_env(:dala, :secret_key_base)"
     end
 
-    test "embeds signing_salt" do
-      assert live_app_content() =~ "signing_salt: \"#{@salt}\""
+    test "reads signing_salt from Application env" do
+      assert live_app_content() =~ "signing_salt = Application.get_env(:dala, :signing_salt)"
     end
   end
 
@@ -421,9 +419,20 @@ defmodule DalaNew.LiveViewPatcherTest do
       assert content =~ "elixir_lib:"
     end
 
-    test "contains liveview_port: 4200 (avoids conflict with host phx.server on 4000)" do
+    test "contains liveview_port (avoids conflict with host phx.server on 4000)" do
       content = LiveViewPatcher.dala_exs_content(~s("/path/to/dala"), ~s("/path/to/elixir/lib"))
       assert content =~ "liveview_port: 4200"
+    end
+
+    test "honors a custom port" do
+      content = LiveViewPatcher.dala_exs_content(~s("/p/d"), ~s("/p/e"), 4242)
+      assert content =~ "liveview_port: 4242"
+    end
+
+    test "writes secret_key_base and signing_salt into dala.exs (gitignored)" do
+      content = LiveViewPatcher.dala_exs_content(~s("/p/d"), ~s("/p/e"))
+      assert content =~ "secret_key_base:"
+      assert content =~ "signing_salt:"
     end
 
     test "starts with import Config" do
@@ -434,9 +443,9 @@ defmodule DalaNew.LiveViewPatcherTest do
 
   # ── dala_live_app_content/4 — Ecto additions ───────────────────────────────────
 
-  describe "dala_live_app_content/4 ecto additions" do
+  describe "dala_live_app_content/3 ecto additions" do
     defp live_app do
-      LiveViewPatcher.dala_live_app_content("MyApp", "my_app", "secret", "salt")
+      LiveViewPatcher.dala_live_app_content("MyApp", "my_app")
     end
 
     test "starts ecto_sqlite3 before the app" do
